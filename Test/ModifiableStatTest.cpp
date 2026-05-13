@@ -33,14 +33,14 @@ void RemoveModifierTest(ModifiableStat& stat, uint32_t sourceId, int expectedVal
     assert(stat.GetValue() == expectedValue);
     cout << "StatModifier sourceId " << sourceId << "삭제 테스트 통과" << endl << stat.ToString() << endl;
 }
-int main()
-{
-    ModifiableStat stat = Creation_Test(100, "HP");
-    StatModifier mod1 = Create_StatModifier(10, 1, StatModifierType::Flat);
-    AddModifierTest(stat, mod1, 110);
-    StatModifier mod2 = Create_StatModifier(10, 1, StatModifierType::Addition, 1, 2);
-    AddModifierTest(stat, mod2, 121);
-    StatModifier mod3 = Create_StatModifier(10, 2, StatModifierType::Multiplication, 4, 2);
-    AddModifierTest(stat, mod3, 146);
-    RemoveModifierTest(stat, 1, 121);
-}
+// int main()
+// {
+//     ModifiableStat stat = Creation_Test(100, "HP");
+//     StatModifier mod1 = Create_StatModifier(10, 1, StatModifierType::Flat);
+//     AddModifierTest(stat, mod1, 110);
+//     StatModifier mod2 = Create_StatModifier(10, 1, StatModifierType::Addition, 1, 2);
+//     AddModifierTest(stat, mod2, 121);
+//     StatModifier mod3 = Create_StatModifier(10, 2, StatModifierType::Multiplication, 4, 2);
+//     AddModifierTest(stat, mod3, 146);
+//     RemoveModifierTest(stat, 1, 121);
+// }

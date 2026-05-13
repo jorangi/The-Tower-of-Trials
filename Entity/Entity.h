@@ -24,20 +24,20 @@ namespace TTOT::Entities
         public:
             Entity(uint32_t id, const std::string& name="");
             virtual ~Entity() = default;
-            void AddComponent(Components::Component* comp)
+            void AddComponent(std::unique_ptr<Components::Component> comp)
             {
                 uint32_t comp_id = _next_id++;
-                _comps.push_back({comp_id, std::unique_ptr<Components::Component>(comp)});
+                _comps.push_back({comp_id, std::move(comp)});
             }
             template<typename T>
             T* GetComponent() const
             {
-                for(auto comp : _comps)
+                for(const auto& comp : _comps)
                 {
-                    T* targetComp = dynamic_cast<T*>(comp);
+                    T* targetComp = dynamic_cast<T*>(comp.component.get());
                     if(targetComp != nullptr) return targetComp;
-                    return nullptr;
                 }
+                return nullptr;
             }
             void RemoveComponent(uint32_t id)
             {
