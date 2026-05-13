@@ -18,7 +18,7 @@ namespace TTOT::Utilities
             std::vector<ListenerNode> _listeners;
             uint32_t _nextId = 0;
         public:
-            uint32_t AddListener(function<void(Args...)> callback)
+            uint32_t AddListener(std::function<void(Args...)> callback)
             {
                 uint32_t funcId = _nextId++;
                 _listeners.push_back({funcId, callback});
@@ -44,7 +44,7 @@ namespace TTOT::Utilities
                 _listeners.erase(
                     remove_if(_listeners.begin(), _listeners.end(), [id](const ListenerNode& node)
                     {
-                        return node._id == targetId;
+                        return node._id == id;
                     }),
                     _listeners.end()
                 );

@@ -24,5 +24,7 @@ namespace TTOT::Stats
             void RemoveStatModifier(uint32_t sourceId);
             std::string ToString() const;
             int GetValue() const;
+            const std::string GetStatName() const {return _statName;}
+            const int GetBaseValue() const {return _baseValue;}
     };
 }

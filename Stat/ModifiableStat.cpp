@@ -1,11 +1,11 @@
 #include <iostream>
 #include <algorithm>
 #include <math.h>
+#include <ostream>
 #include "ModifiableStat.h"
 #include "StatModifier.h"
 
 using namespace std;
-
 namespace TTOT::Stats
 {    
     ModifiableStat::ModifiableStat(int baseValue, string statName):_baseValue(baseValue), _finalValue(baseValue), _statName(statName) {}
@@ -65,7 +65,9 @@ namespace TTOT::Stats
     }
     string ModifiableStat::ToString() const
     {
-        return "";
+        ostringstream oss;
+        oss << GetStatName() << ": " << GetBaseValue() << " => " << GetValue();
+        return oss.str();
     }
     int ModifiableStat::GetValue() const
     {
@@ -92,4 +94,5 @@ namespace TTOT::Stats
         isDirty = false;
         return _finalValue;
     }
+
 }

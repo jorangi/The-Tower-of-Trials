@@ -1,7 +1,7 @@
 #include <string>
 #include <ostream>
-#include "ModifiableStat.h"
-#include "Action.h"
+#include "Stat/ModifiableStat.h"
+#include "Utility/Action.h"
 
 using namespace std;
 

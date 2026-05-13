@@ -4,7 +4,7 @@
 #include <vector>
 #include <stdint.h>
 #include <memory>
-#include <Components.h>
+#include "Component/Components.h"
 
 namespace TTOT::Entities
 {

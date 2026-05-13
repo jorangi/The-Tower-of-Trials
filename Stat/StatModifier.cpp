@@ -1,4 +1,4 @@
-#include <StatModifier.h>
+#include "StatModifier.h"
 #include <math.h>
 
 using namespace std;
@@ -6,7 +6,7 @@ using namespace std;
 namespace TTOT::Stats
 {
     StatModifier::StatModifier(int val, uint32_t sourceId, StatModifierType calcType, int stackedCount, int maxStackedCount)
-    : _value(val), _sourceId(sourceId), _calcType(calcType), _stackedCount(stackedCount), _maxStackedCount(maxStackedCount){}
+    : _value(val), _sourceId(sourceId), _calcType(calcType), _stackedCount(min(maxStackedCount, stackedCount)), _maxStackedCount(maxStackedCount){}
     const string StatModifier::ToString() const
     {
         
@@ -49,7 +49,7 @@ namespace TTOT::Stats
     }
     void StatModifier::SetStackedCount(int count)
     {
-        _stackedCount = min(_maxStackedCount, count); //최대 중첩까지만 가능하게끔, 중첩 불가의 경우 기본값인 1이니 상관 X
+        _stackedCount = min(GetMaxStackedCount(), count); //최대 중첩까지만 가능하게끔, 중첩 불가의 경우 기본값인 1이니 상관 X
     }
     void StatModifier::SetMaxStackedCount(int count)
     {
