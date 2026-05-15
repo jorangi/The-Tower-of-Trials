@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # file(GLOB_RECURSE SRC_FILES "*.cpp")
 
 file(GLOB_RECURSE SRC_FILES 
+    "Datas/*.cpp"
     "Entity/*.cpp"
     "Stat/*.cpp"
     "Component/*.cpp"

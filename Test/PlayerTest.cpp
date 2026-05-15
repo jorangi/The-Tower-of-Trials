@@ -14,8 +14,8 @@ void Player_Creation()
     player.ShowInfo();
 }
 
-int main(void)
-{
-    SetConsoleOutputCP(CP_UTF8);
-    Player_Creation();
-}
+// int main(void)
+// {
+//     SetConsoleOutputCP(CP_UTF8);
+//     Player_Creation();
+// }
