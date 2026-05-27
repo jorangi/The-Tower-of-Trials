@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <vector>
 #include <sstream>
+#include <nlohmann/json.hpp>
 
 namespace TTOT::Datas
 {
@@ -31,6 +32,7 @@ namespace TTOT::Datas
             uint32_t GetDef() const {return def;}
             uint32_t GetSpd() const {return spd;}
             std::vector<uint32_t> GetSkills() const {return skills;}
+            NLOHMANN_DEFINE_TYPE_INTRUSIVE(EntityDTO, id, name, hp, mp, money, atk, def, spd, skills)
 
             std::string ToString() const
             {

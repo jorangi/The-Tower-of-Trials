@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iostream>
+#include <windows.h>
 #include "Datas/EntityDTO.h"
 
 using namespace std;
@@ -25,11 +26,11 @@ void Test_CreationMonster()
     assert(dto.GetAtk() == 5);
     assert(dto.GetDef() == 1);
     assert(dto.GetSpd() == 3);
-
+    SetConsoleOutputCP(CP_UTF8);
     cout << "Entity DTO 생성됨" << endl;
     cout << dto.ToString() << endl;
 }
-int main()
-{
-    Test_CreationMonster();
-}
+// int main()
+// {
+//     Test_CreationMonster();
+// }

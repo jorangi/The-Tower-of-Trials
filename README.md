@@ -201,3 +201,52 @@ Entity DTO 생성됨
 일단은 엔티티는 대충 완성된 듯 하다.<br>
 물론 엔티티 매니저와 스킬관련 데이터, 그리고 DTO를 위한 DB(혹은 CSV? json?)도 추가하긴 해야한다.<br>
 하루 걸러서 작업했다고 다소 잊기는 했는데, 그래도 얼추 눈과 손에 익었다.
+
+# 26.05.27
+
+사운드랑 Gemini API 기능을 추가하고 싶어서 라이브러리를 추가하는데, CMakeLists.txt에 추가했다.
+오류가 참 많았다...
+
+### ScreenUtility 추가
+- 터미널 지우기랑 출력용 유틸리티 클래스이다.
+- 아직 테스트는 안해봐서 버그가 분명히 있을 듯...
+
+### SceneManager 추가
+- SceneManager헤더와 소스파일을 추가했다.
+- 근데 사실 아직 뭐 구현된 것은 없다.
+
+### ConnGemini 추가
+- Gemini API를 도입했다.
+- API 키는 그냥 각자 발급해야한다. 절차가 복잡하긴 한데, 우선 테스트용이고 뭐 배포할 생각은 없으니..
+- 사용처는 생각 중인데, 몰입할 수 있는 RPG 게임이라는 느낌을 주기 위해 진행요원? 게임마스터 느낌을 생각 중이긴 한데,<br>
+NPC나 몬스터, 아이템 등등 팩토리 패턴을 이용하니까 Gemini API에게 TOOL식으로 제공하면 동적 생성도 가능할 거고<br>
+데이터베이스는 따로 가용할 생각은 없어서 그냥 JSON을 세이브용으로 둘 생각이긴 한데, 아직까지는 깊은 생각은 안했다.
+<video src="https://github.com/user-attachments/assets/b98d6842-ed27-4e4f-b83b-f5978462a139" controls width="30%">
+  브라우저가 비디오 태그를 지원하지 않습니다.
+</video>
+
+### SoundManager 추가
+텍스트로 이루어지는 머드게임이라서 소리 추가는 딱히 생각에 없었는데, 막상 너무 밋밋할 것 같아서 찾아봤다.<br>
+SoLoud, FMOD, MiniAudio 등의 라이브러리?가 있었는데, SoLoud는 20년도 이후 업데이트가 멈췄고<br>
+FMOD는 인디는 무료지만 그래도 규모가 좀 과분한 감이 없잖아 있었고<br>
+그냥 규모 적당하고 라이브러리 추가하기 쉬운 miniaudio로 선정했다<br>
+사실 SoLoud를 먼저 적용해봤는데, 업데이트가 끊겼다는 게 자꾸 걸려서 바꿨다.<br>
+
+- SoundManager는 싱글톤을 기반으로 작동한다.
+    - c++에서 c#과 달리 알게된 것은, c#은 프로퍼티를 이용해서 static으로 싱글톤을 구현했는데, 물론 Lazy도 있긴 하지만<br>c++에서는 함수 내부에 static 변수를 생성하는 것이 가능하고, 그 경우 첫 호출에만 객체를 생성하여 Lazy처리가 된다는 것이었다.
+- SoundManager에서는 초기화시 Assets폴더의 BGM과 SFX를 자동으로 가져와 등록한다.
+    - 추가할 점이라면 Assets폴더에 Sounds라는 폴더를 따로 빼고 거기에 넣는 게 좋을 것 같다. 
+    - 현재는 Assets에 사운드파일 말고 딱히 있는 게 없어서 그냥 BGM과 SFX만 넣긴 했지만 SoundManager가 현재 파일을 받아와 등록하는 방식이 Assets 폴더 전체를 크롤링? 하는 방식이라..
+- Volume 조절도 가능하다.
+    - MasterVolume이 있고 BGM과 SFX도 조절이 가능하다.
+    - Master * BGM(or SFX)로 볼륨 계산을 하였다.
+    - BGM의 경우 현재 재생 중인 BGM의 볼륨도 조절된다.
+- Loop
+    - 기본적으로 Assets 폴더의 이름_파일명으로 음악 파일이 등록되는데, BGM일 경우 Loop처리를 하고 등록했다.
+- Play, Stop
+    - 당연히 재생과 정지 기능도 구현하였다.
+
+readme 영상에서 소리가 들릴지는 모르겠지만<br>
+<video src="https://github.com/user-attachments/assets/e2f6b4dc-d70c-4fde-95f2-fbe0eb0e5f4a" controls width="30%">
+  브라우저가 비디오 태그를 지원하지 않습니다.
+</video>

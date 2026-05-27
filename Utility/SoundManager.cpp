@@ -1,0 +1,124 @@
+#define MINIAUDIO_IMPLEMENTATION
+#include "Utility/SoundManager.h"
+#include <string>
+#include <iostream>
+#include <filesystem>
+
+namespace TTOT::Utility
+{
+    SoundManager::SoundManager()
+    {
+        if(ma_engine_init(NULL, &s_engine) != MA_SUCCESS)
+        {
+            std::cerr << "[SoundManager] 엔진 초기화 실패!" << std::endl;
+        }
+        namespace fs = std::filesystem;
+        if(!fs::exists("Assets") || !fs::is_directory("Assets"))
+        {
+            std::cerr << "[SoundManager] Assets 폴더가 존재하지 않습니다!" << std::endl;
+        }
+        std::cout << "[SoundManager] 사운드 파일 등록 시작" << std::endl;
+        int count = 0;
+        for(const auto& entry : fs::recursive_directory_iterator("Assets"))
+        {
+            if(!entry.is_regular_file()) continue;
+            fs::path filePath = entry.path();
+            std::string parentDirName = filePath.parent_path().filename().string();
+            std::string fileName = filePath.stem().string();
+            std::string generatedKey = parentDirName + "_" + fileName;
+            std::string fullPath = filePath.string();
+            bool isLoop = (parentDirName == "BGM");
+            RegisterSound(generatedKey, fullPath, isLoop);
+            count++;
+        }
+        std::cout << "[SoundManager] 초기화 완료. (등록된 사운드: " << count << ")" <<  std::endl;
+    }
+    SoundManager& SoundManager::Inst()
+    {
+        static SoundManager instance;
+        return instance;
+    }
+    SoundManager::~SoundManager()
+    {
+        for(auto& pair : soundMap)
+        {
+            ma_sound_uninit(pair.second.get());
+        }
+        soundMap.clear();
+        ma_engine_uninit(&s_engine);
+    }
+    void SoundManager::RegisterSound(const std::string& key, const std::string& filePath, bool isLoop)
+    {
+        auto sound = std::make_unique<ma_sound>();
+        ma_result result = ma_sound_init_from_file(&s_engine, filePath.c_str(), 0, NULL, NULL, sound.get());
+        if(result == MA_SUCCESS)
+        {
+            ma_sound_set_looping(sound.get(), isLoop ? MA_TRUE : MA_FALSE);
+            soundMap[key] = std::move(sound);
+            std::cout << "[SoundManager] 등록 성공 : " << key << " (" << filePath << ")" << std::endl;
+        }
+        else
+        {
+            std::cerr << "[SoundManager] 등록 실패 : " << key << "에러코드 (" << result << ")" << std::endl;
+        }
+    }
+    void SoundManager::PlayBGM(const std::string& key)
+    {
+        auto it = soundMap.find(key);
+        if(it == soundMap.end())
+        {
+            std::cerr << "[SoundManager] " << key << " 음악이 존재하지 않습니다." << std::endl;
+            return;
+        }
+        if(currentBGM != nullptr)
+        {
+            ma_sound_stop(currentBGM);
+            ma_sound_seek_to_pcm_frame(currentBGM, 0);
+        }
+        currentBGM = it->second.get();
+        ma_sound_set_volume(currentBGM, masterVolume * bgmVolume);
+        ma_sound_start(currentBGM);
+    }
+    void SoundManager::StopBGM()
+    {
+        if(currentBGM != nullptr)
+        {
+            ma_sound_stop(currentBGM);
+            ma_sound_seek_to_pcm_frame(currentBGM, 0);
+            currentBGM = nullptr;
+        }
+    }
+    void SoundManager::PlaySFX(const std::string& key)
+    {
+        auto it = soundMap.find(key);
+        if(it == soundMap.end())
+        {
+            std::cerr << "[SoundManager] " << key << " 효과음이 존재하지 않습니다." << std::endl;
+            return;
+        }
+        ma_sound_set_volume(it->second.get(), masterVolume * sfxVolume);
+        if(ma_sound_is_playing(it->second.get()))
+        {
+            ma_sound_seek_to_pcm_frame(it->second.get(), 0);
+        }
+        ma_sound_start(it->second.get());
+        
+    }
+    void SoundManager::SetMasterVolume(float volume)
+    {
+        masterVolume = volume;
+        ma_engine_set_volume(&s_engine, masterVolume);
+    }
+    void SoundManager::SetBGMVolume(float volume)
+    {
+        bgmVolume = volume;
+        if(currentBGM != nullptr)
+        {
+            ma_sound_set_volume(currentBGM, masterVolume * bgmVolume);
+        }
+    }
+    void SoundManager::SetSFXVolume(float volume)
+    {
+        sfxVolume = volume;
+    }
+}
