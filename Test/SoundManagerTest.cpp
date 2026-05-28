@@ -4,7 +4,7 @@
 #include <windows.h>
 
 using namespace std;
-using TTOT::Utility::SoundManager;
+using TTOT::Utilities::SoundManager;
 
 void InitSoundManagerTest()
 {

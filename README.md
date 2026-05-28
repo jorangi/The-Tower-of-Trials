@@ -250,3 +250,34 @@ readme 영상에서 소리가 들릴지는 모르겠지만<br>
 <video src="https://github.com/user-attachments/assets/e2f6b4dc-d70c-4fde-95f2-fbe0eb0e5f4a" controls width="30%">
   브라우저가 비디오 태그를 지원하지 않습니다.
 </video>
+
+# 26.05.28
+
+### 싱글톤 해체
+
+사실 싱글톤 패턴이 OOP에 좋지 않은 건 당연하다.<br>
+편의성을 위해서 그냥 싱글톤 쓸까 하다가, 이 프로젝트의 목적은 객체 지향 개발 포트폴리오인데 귀찮고 어렵더라도 싱글톤을 쓰지 않는게 좋다는 결론에 이르렀다.<br>
+기존에 있던 싱글톤은
+- `Network::ConnGemini` 
+- `Core::SceneManager`
+- `Utilities::SoundManager`
+정도 였던 것 같은데, GameManager에서 이들을 make_unique로 만들어 관리하게끔 했다.
+
+### 이벤트 버스와 이벤트 구조체
+
+SFX나 여러가지 동작들을 어떻게 구현할까 고민했는데, 처음에는 싱글톤으로 그냥 호출하려고 했다.<br>
+그러면 싱글톤이 너무 많은 의존성을 가지게 되어 코드의 유지보수성이 떨어질 것 같았다.<br>
+그래서 옵저버 패턴을 1차로 생각했다. 다만 그렇게 되면 모든 엔티티 객체를 사운드 매니저가 구독해야 하는 문제가 보였다.<br>
+사운드 매니저 뿐 아니라 나중에 뭔가 추가될 때마다 엔티티에 구독하게끔 유도하는게 뭔가 유지보수에 좋지 않다는 느낌을 받았다.<br>
+그래서 이벤트 버스를 이용해서 모든 이벤트는 템플릿 프로그래밍을 이용해서 이벤트 버스가 관리하고 Un/Subscribe부터 Publish까지 하게끔 하였다.<br><br>
+
+다만 이벤트 버스를 GameManager(-EventBus)->SceneManager->EntityFactory->Entity로 보내야 하는데, 의존성 주입을 생각하면 생성자에 매개변수를 계속 추가하는 건 당연히 좋지 못하고, 빌더같은 걸 생각하기에는 굳이 싶었다.<br>
+그래서 고른 방법은 Context주입이다. GameContext라는 이름의 구조체에 EventBus와 같은 전달할 context들을 포함시켜서 주입하게끔 하였다.<br>
+물론 아직 EventBus밖에 없지만...
+<br><br>
+이벤트 구조체는 SFXEvent처럼 엔티티가 이벤트를 발생시키기 위해 Action에 사용할 예정이다.<br>
+가령 SFXEvent의 key에 "SFX_Hit"을 넣어 그걸 Publish하면 SoundManager는 그 키에 해당하는 사운드를 재생해주는 식이다.<br>
+<br><br>
+아키텍쳐는 그러한데, 사실 확정은 아니고... 다만 이쪽이 나중에 확장성을 생각해서 좋지 않을까 생각했다.
+<br>
+이외에는 사실 뭐 했는지 기억이 안난다. 주석좀 달았다.

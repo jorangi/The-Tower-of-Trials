@@ -15,9 +15,4 @@ namespace TTOT::Core
             std::cerr << sceneId << "에 해당하는 씬이 존재하지 않습니다." << std::endl;
         }
     }
-    SceneManager& SceneManager::Inst()
-    {
-        static SceneManager instance;
-        return instance;
-    }
 }

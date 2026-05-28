@@ -1,21 +1,28 @@
 #include "ScreenUtility.h"
 
-namespace TTOT::Utility
+namespace TTOT::Utilities::ScreenUtility
 {
-    void ScreenUtility::Clear()
+    void Clear()
     {
         system("cls");
     }
-
-    void ScreenUtility::Print(const std::string& text)
+    void Print(const std::string& text)
     {
         std::cout << text;
     }
-    void ScreenUtility::PrintLine(const std::string& text)
+    void PrintLine(const std::string& text)
     {
         std::cout << text << std::endl;
     }
-    void ScreenUtility::HideCursor()
+    void ShowCursor()
+    {
+        HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+        CONSOLE_CURSOR_INFO cursorInfo;
+        GetConsoleCursorInfo(consoleHandle, &cursorInfo);
+        cursorInfo.bVisible = true;
+        SetConsoleCursorInfo(consoleHandle, &cursorInfo);
+    }
+    void HideCursor()
     {
         HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
         CONSOLE_CURSOR_INFO cursorInfo;

@@ -17,13 +17,15 @@ void TestWithBody(const string& prompt)
             }
         })}
     };
-    string response = ConnGemini::Request(body);
+    ConnGemini* conn = new ConnGemini();
+    string response = conn->Request(body);
     cout << "응답: " << response << endl;
     cout << response << endl;
 }
 void TestOnlyPrompt(const string& prompt)
 {
-    string response = ConnGemini::Request(prompt);
+    ConnGemini* conn = new ConnGemini();
+    string response = conn->Request(prompt);
     cout << "응답: " << response << endl;
     cout << response << endl;
 }
@@ -32,7 +34,6 @@ int main(void)
 {
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
-    TTOT::Network::ConnGemini conn;
     cout << "===============================" << endl;
     cout << "   Body 포함 프롬프트 테스트       " << endl;
     cout << "===============================" << endl;

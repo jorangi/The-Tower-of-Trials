@@ -4,7 +4,7 @@
 #include <iostream>
 #include <filesystem>
 
-namespace TTOT::Utility
+namespace TTOT::Utilities
 {
     SoundManager::SoundManager()
     {
@@ -32,11 +32,6 @@ namespace TTOT::Utility
             count++;
         }
         std::cout << "[SoundManager] 초기화 완료. (등록된 사운드: " << count << ")" <<  std::endl;
-    }
-    SoundManager& SoundManager::Inst()
-    {
-        static SoundManager instance;
-        return instance;
     }
     SoundManager::~SoundManager()
     {

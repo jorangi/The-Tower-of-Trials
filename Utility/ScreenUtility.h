@@ -3,14 +3,11 @@
 #include <iostream>
 #include <string>
 
-namespace TTOT::Utility
+namespace TTOT::Utilities::ScreenUtility
 {
-    class ScreenUtility
-    {
-        public:
-            static void Clear();
-            static void Print(const std::string& text);
-            static void PrintLine(const std::string& text);
-            static void HideCursor();
-    };
+    void Clear();
+    void Print(const std::string& text);
+    void PrintLine(const std::string& text);
+    void HideCursor();
+    void ShowCursor();
 }

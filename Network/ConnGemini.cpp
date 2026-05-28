@@ -5,6 +5,10 @@
 
 namespace TTOT::Network
 {
+    ConnGemini::ConnGemini(){
+        if(!apiKey.empty()) return;
+        apiKey = CheckAndInitializeApiKey();
+    }
     std::string ConnGemini::CheckAndInitializeApiKey()
     {
         const char* envKey = std::getenv("GEMINI_API_KEY");
@@ -12,19 +16,21 @@ namespace TTOT::Network
         {
             std::cout << "현재 환경에서 Gemini API를 찾을 수 없습니다." << std::endl;
             std::cout << "Gemini API 키를 입력하세요 : " << std::endl;
-            std::string apiKey;
+            std::string inputKey;
             HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
             DWORD mode = 0;
             GetConsoleMode(hStdin, &mode);
             SetConsoleMode(hStdin, mode & (~ENABLE_ECHO_INPUT));
-            std::getline(std::cin, apiKey);
-            if(apiKey.empty())
+            std::getline(std::cin, inputKey);
+            SetConsoleMode(hStdin, mode);
+            std::cout << std::endl;
+            if(inputKey.empty())
             {
                 std::cout << "❌ 올바르지 않은 API 키 형식입니다. 프로그램이 정상 작동하지 않을 수 있습니다." << std::endl;
             }
-            _putenv_s("GEMINI_API_KEY", apiKey.c_str());
+            _putenv_s("GEMINI_API_KEY", inputKey.c_str());
             std::cout << "✅ API 키가 임시로 세팅되었습니다! (프로그램 종료 시 소멸)" << std::endl;
-            return apiKey;
+            return inputKey;
         }
         else
         {
@@ -34,7 +40,6 @@ namespace TTOT::Network
     }
     std::string ConnGemini::Request(const json& body)
     {
-        std::string apiKey = ConnGemini::CheckAndInitializeApiKey();
         std::string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + apiKey;
 
         cpr::Response response = cpr::Post(
@@ -64,6 +69,6 @@ namespace TTOT::Network
                 }
             })}
         };
-        return ConnGemini::Request(body);
+        return Request(body);
     }
 }
