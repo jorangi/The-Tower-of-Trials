@@ -13,13 +13,13 @@ namespace TTOT::Utilities
             std::cerr << "[SoundManager] 엔진 초기화 실패!" << std::endl;
         }
         namespace fs = std::filesystem;
-        if(!fs::exists("Assets") || !fs::is_directory("Assets"))
+        if(!fs::exists("Assets/Sounds") || !fs::is_directory("Assets/Sounds"))
         {
-            std::cerr << "[SoundManager] Assets 폴더가 존재하지 않습니다!" << std::endl;
+            std::cerr << "[SoundManager] Assets/Sounds 폴더가 존재하지 않습니다!" << std::endl;
         }
         std::cout << "[SoundManager] 사운드 파일 등록 시작" << std::endl;
         int count = 0;
-        for(const auto& entry : fs::recursive_directory_iterator("Assets"))
+        for(const auto& entry : fs::recursive_directory_iterator("Assets/Sounds"))
         {
             if(!entry.is_regular_file()) continue;
             fs::path filePath = entry.path();
@@ -35,32 +35,53 @@ namespace TTOT::Utilities
     }
     SoundManager::~SoundManager()
     {
-        for(auto& pair : soundMap)
+        for(auto& pair : sfxPoolMap)
+        {
+            for(auto& sfx : pair.second)
+            {
+                ma_sound_uninit(sfx.get());
+            }
+        }
+        for(auto& pair : bgmMap)
         {
             ma_sound_uninit(pair.second.get());
         }
-        soundMap.clear();
+        bgmMap.clear();
         ma_engine_uninit(&s_engine);
     }
     void SoundManager::RegisterSound(const std::string& key, const std::string& filePath, bool isLoop)
     {
-        auto sound = std::make_unique<ma_sound>();
-        ma_result result = ma_sound_init_from_file(&s_engine, filePath.c_str(), 0, NULL, NULL, sound.get());
-        if(result == MA_SUCCESS)
+        if(isLoop)
         {
-            ma_sound_set_looping(sound.get(), isLoop ? MA_TRUE : MA_FALSE);
-            soundMap[key] = std::move(sound);
-            std::cout << "[SoundManager] 등록 성공 : " << key << " (" << filePath << ")" << std::endl;
+            auto sound = std::make_unique<ma_sound>();
+            ma_result result = ma_sound_init_from_file(&s_engine, filePath.c_str(), 0, NULL, NULL, sound.get());
+            if(result == MA_SUCCESS)
+            {
+                ma_sound_set_looping(sound.get(), MA_TRUE);
+                bgmMap[key] = std::move(sound);
+                std::cout << "[SoundManager] BGM 등록 성공 : " << key << " (" << filePath << ")" << std::endl;
+            }
         }
         else
         {
-            std::cerr << "[SoundManager] 등록 실패 : " << key << "에러코드 (" << result << ")" << std::endl;
+            int count = 0;
+            for(int i = 0; i < 5; i++)
+            {
+                auto sound = std::make_unique<ma_sound>();
+                ma_result cloneResult = ma_sound_init_from_file(&s_engine, filePath.c_str(), 0, NULL, NULL, sound.get());
+                if(cloneResult == MA_SUCCESS)
+                {
+                    sfxPoolMap[key].push_back(std::move(sound));
+                    count++;
+                }
+            }
+            std::cout << "[SoundManager] 등록 : " << key << " (" << filePath << ")" << "( 성공: " << count << ", 실패 : " << 5 - count << ")" << std::endl;
         }
     }
     void SoundManager::PlayBGM(const std::string& key)
     {
-        auto it = soundMap.find(key);
-        if(it == soundMap.end())
+        auto it = bgmMap.find(key);
+        if(it == bgmMap.end())
         {
             std::cerr << "[SoundManager] " << key << " 음악이 존재하지 않습니다." << std::endl;
             return;
@@ -85,19 +106,26 @@ namespace TTOT::Utilities
     }
     void SoundManager::PlaySFX(const std::string& key)
     {
-        auto it = soundMap.find(key);
-        if(it == soundMap.end())
+        auto it = sfxPoolMap.find(key);
+        if(it == sfxPoolMap.end())
         {
             std::cerr << "[SoundManager] " << key << " 효과음이 존재하지 않습니다." << std::endl;
             return;
         }
-        ma_sound_set_volume(it->second.get(), masterVolume * sfxVolume);
-        if(ma_sound_is_playing(it->second.get()))
+        for(auto& sfx : sfxPoolMap[key])
         {
-            ma_sound_seek_to_pcm_frame(it->second.get(), 0);
+            if(!ma_sound_is_playing(sfx.get()))
+            {
+                ma_sound_set_volume(sfx.get(), masterVolume * sfxVolume);
+                ma_sound_seek_to_pcm_frame(sfx.get(), 0);
+                ma_sound_start(sfx.get());
+                return;
+            }
         }
-        ma_sound_start(it->second.get());
-        
+        auto& fallbackSFX = sfxPoolMap[key][0];
+        ma_sound_set_volume(fallbackSFX.get(), masterVolume * sfxVolume);
+        ma_sound_seek_to_pcm_frame(fallbackSFX.get(), 0);
+        ma_sound_start(fallbackSFX.get());
     }
     void SoundManager::SetMasterVolume(float volume)
     {

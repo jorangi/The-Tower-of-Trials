@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/SceneManager.h"
+#include "Core/EventBus.h"
 #include "Utility/SoundManager.h"
 #include "Network/ConnGemini.h"
 #include <memory>
@@ -21,6 +22,7 @@ namespace TTOT::Core
         private:
             bool isRunning;
             TTOT::Core::GameState gameState;
+            TTOT::Core::EventBus eventBus;
 
             std::unique_ptr<TTOT::Network::ConnGemini> gemini;
             std::unique_ptr<TTOT::Core::SceneManager> sceneManager;

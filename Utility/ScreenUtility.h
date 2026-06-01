@@ -1,6 +1,5 @@
 #pragma once
 #include <windows.h>
-#include <iostream>
 #include <string>
 
 namespace TTOT::Utilities::ScreenUtility

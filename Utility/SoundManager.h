@@ -1,6 +1,7 @@
 #pragma once
 #include "Utility/miniaudio.h"
 #include <unordered_map>
+#include <vector>
 #include <string>
 #include <memory>
 
@@ -12,7 +13,8 @@ namespace TTOT::Utilities
     {
         private:
             ma_engine s_engine;
-            std::unordered_map<std::string, std::unique_ptr<ma_sound>> soundMap;
+            std::unordered_map<std::string, std::unique_ptr<ma_sound>> bgmMap;
+            std::unordered_map<std::string, std::vector<std::unique_ptr<ma_sound>>> sfxPoolMap;
             ma_sound* currentBGM = nullptr;
 
             float masterVolume = 1.0f;

@@ -1,6 +1,5 @@
 #include <windows.h>
-#include "Network/ConnGemini.h"
-#include "Utility/ScreenUtility.h"
+#include "Core/GameManager.h"
 
 using namespace std;
 using namespace TTOT::Network;
@@ -10,11 +9,7 @@ int main(void)
 {
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
-    ScreenUtility::HideCursor();
-    ConnGemini* conn = new ConnGemini();
-    Sleep(1000);
-    ScreenUtility::Clear();
-    Sleep(5000);
-    ScreenUtility::ShowCursor();
+    TTOT::Core::GameManager gameManager;
+    gameManager.Run();
     return 0;
 }

@@ -1,4 +1,5 @@
 #include "ScreenUtility.h"
+#include <iostream>
 
 namespace TTOT::Utilities::ScreenUtility
 {
