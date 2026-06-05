@@ -3,12 +3,14 @@
 
 namespace TTOT::Core::Scenes
 {
-    class TitleScene : public SceneBase
+    class SettingScene : public SceneBase
     {
         private:
-            bool saveFile = false;
+            int masterVolume = 10;
+            int bgmVolume = 10;
+            int sfxVolume = 10;
         public:
-            TitleScene(TTOT::Core::GameContext& context);
+            SettingScene(TTOT::Core::GameContext& context);
             void OnEnter() override;
             void OnExit() override;
             void Update() override;

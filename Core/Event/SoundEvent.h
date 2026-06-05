@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
 
-namespace TTOT::Core::Event
+namespace TTOT::Core::Events
 {
-    struct SFXEvent
+    struct SoundEvent
     {
         std::string key;
     };

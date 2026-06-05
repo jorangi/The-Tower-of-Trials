@@ -7,6 +7,12 @@
 
 namespace TTOT::Utilities
 {
+    struct VolumeData
+    {
+        float masterVolume;
+        float bgmVolume;
+        float sfxVolume;
+    };
     /// @brief SoundManager 클래스, miniaudio 라이브러리를 사용하여 사운드 파일을 관리하고 재생하는 싱글톤 클래스
     /// @details miniaudio 엔진을 기반으로 동작하며, Assets 폴더의 사운드를 자동 로드합니다.
     class SoundManager
@@ -46,5 +52,6 @@ namespace TTOT::Utilities
             /// @brief SFX 볼륨 설정 함수, 효과음의 볼륨을 조절
             /// @param volume 설정할 볼륨 값 (0.0f ~ 1.0f)
             void SetSFXVolume(float volume);
+            VolumeData GetVolumes();
     };
 }

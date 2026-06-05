@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <ftxui/dom/elements.hpp>
+#include <ftxui/component/event.hpp>
 
 namespace TTOT::Core::Scenes
 {
@@ -15,9 +17,10 @@ namespace TTOT::Core::Scenes
             virtual void Update() = 0;
             /// @brief 입력 처리
             /// @param input 입력 내용
-            virtual void HandleInput(const std::string& input) = 0;
+            virtual void HandleInput(const ftxui::Event& event) = 0;
             /// @brief 입력 오류 처리
             /// @param errorMessage 오류 메시지
             virtual void InputError(const std::string& errorMessage) = 0;
+            virtual ftxui::Element Render() = 0;
     };
 }

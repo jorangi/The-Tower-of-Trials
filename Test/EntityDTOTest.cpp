@@ -23,7 +23,7 @@ void Test_CreationMonster()
     assert(dto.GetHP() == 30);
     assert(dto.GetMP() == 0);
     assert(dto.GetMoney() == 20);
-    assert(dto.GetAtk() == 5);
+    assert(dto.GetStr() == 5);
     assert(dto.GetDef() == 1);
     assert(dto.GetSpd() == 3);
     SetConsoleOutputCP(CP_UTF8);

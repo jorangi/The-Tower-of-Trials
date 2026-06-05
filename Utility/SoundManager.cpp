@@ -31,6 +31,7 @@ namespace TTOT::Utilities
             RegisterSound(generatedKey, fullPath, isLoop);
             count++;
         }
+        
         std::cout << "[SoundManager] 초기화 완료. (등록된 사운드: " << count << ")" <<  std::endl;
     }
     SoundManager::~SoundManager()
@@ -84,6 +85,10 @@ namespace TTOT::Utilities
         if(it == bgmMap.end())
         {
             std::cerr << "[SoundManager] " << key << " 음악이 존재하지 않습니다." << std::endl;
+            return;
+        }
+        if(currentBGM == it->second.get() && ma_sound_is_playing(currentBGM))
+        {
             return;
         }
         if(currentBGM != nullptr)
@@ -143,5 +148,9 @@ namespace TTOT::Utilities
     void SoundManager::SetSFXVolume(float volume)
     {
         sfxVolume = volume;
+    }
+    TTOT::Utilities::VolumeData SoundManager::GetVolumes()
+    {
+        return TTOT::Utilities::VolumeData{ masterVolume, bgmVolume, sfxVolume };
     }
 }

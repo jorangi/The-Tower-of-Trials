@@ -36,7 +36,7 @@ namespace TTOT::Core
             template<typename T>
             uint32_t Subscribe(std::function<void(const T&)> callback)
             {
-                GetAction<T>()->AddListener(callback);
+                return GetAction<T>()->AddListener(callback);
             }
 
             /// @brief 이벤트 구독을 해제하는 함수

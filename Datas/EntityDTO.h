@@ -12,27 +12,35 @@ namespace TTOT::Datas
         private:
             uint32_t id;
             std::string name;
-            uint32_t hp;
-            uint32_t mp;
+            uint32_t hp; // 체력
+            uint32_t mp; // 마력
             uint32_t money;
-            uint32_t atk;
-            uint32_t def;
-            uint32_t spd;
+            uint32_t str; // 힘
+            uint32_t dex; // 민첩
+            uint32_t _int; // 지력
+            uint32_t wis; // 지혜
+            uint32_t cha; // 매력
+            uint32_t def; // 방어력
+            uint32_t spd; // 속도
             std::vector<uint32_t> skills;
 
         public:
-            EntityDTO(uint32_t id, const std::string& name, uint32_t hp, uint32_t mp, uint32_t money, uint32_t atk, uint32_t def, uint32_t spd, std::vector<uint32_t> skills):
-                id(id), name(name), hp(hp), mp(mp), money(money), atk(atk), def(def), spd(spd), skills(skills){}
+            EntityDTO(uint32_t id, const std::string& name, uint32_t hp, uint32_t mp, uint32_t money, uint32_t str, uint32_t dex, uint32_t _int, uint32_t wis, uint32_t cha, uint32_t def, uint32_t spd, std::vector<uint32_t> skills):
+                id(id), name(name), hp(hp), mp(mp), money(money), str(str), dex(dex), _int(_int), wis(wis), cha(cha), def(def), spd(spd), skills(skills){}
             uint32_t GetId() const {return id;}
             std::string GetName() const {return name;}
             uint32_t GetHP() const {return hp;}
             uint32_t GetMP() const {return mp;}
             uint32_t GetMoney() const {return money;}
-            uint32_t GetAtk() const {return atk;}
+            uint32_t GetStr() const {return str;}
+            uint32_t GetDex() const {return dex;}
+            uint32_t GetInt() const {return _int;}
+            uint32_t GetWis() const {return wis;}
+            uint32_t GetCha() const {return cha;}
             uint32_t GetDef() const {return def;}
             uint32_t GetSpd() const {return spd;}
             std::vector<uint32_t> GetSkills() const {return skills;}
-            NLOHMANN_DEFINE_TYPE_INTRUSIVE(EntityDTO, id, name, hp, mp, money, atk, def, spd, skills)
+            NLOHMANN_DEFINE_TYPE_INTRUSIVE(EntityDTO, id, name, hp, mp, money, str, dex, _int, wis, cha, def, spd, skills)
 
             std::string ToString() const
             {
@@ -43,7 +51,11 @@ namespace TTOT::Datas
                 oss << " ======================================" << std::endl;
                 oss << "   hp: " << hp << std::endl;
                 oss << "   mp: " << mp << std::endl;
-                oss << "   atk: " << atk << std::endl;
+                oss << "   str: " << str << std::endl;
+                oss << "   dex: " << dex << std::endl;
+                oss << "   int: " << _int << std::endl;
+                oss << "   wis: " << wis << std::endl;
+                oss << "   cha: " << cha << std::endl;
                 oss << "   def: " << def << std::endl;
                 oss << "   spd: " << spd << std::endl;
                 oss << " ======================================" << std::endl;
@@ -88,9 +100,29 @@ namespace TTOT::Datas
                 this->money = money;
                 return *this;
             }
-            EntityDTOBuilder Atk(uint32_t atk)
+            EntityDTOBuilder Atk(uint32_t str)
             {
-                this->atk = atk;
+                this->str = str;
+                return *this;
+            }
+            EntityDTOBuilder Dex(uint32_t dex)
+            {
+                this->dex = dex;
+                return *this;
+            }
+            EntityDTOBuilder Int(uint32_t _int)
+            {
+                this->_int = _int;
+                return *this;
+            }
+            EntityDTOBuilder Wis(uint32_t wis)
+            {
+                this->wis = wis;
+                return *this;
+            }
+            EntityDTOBuilder Cha(uint32_t cha)
+            {
+                this->cha = cha;
                 return *this;
             }
             EntityDTOBuilder Def(uint32_t def)
@@ -110,7 +142,7 @@ namespace TTOT::Datas
             }
             EntityDTO Build()
             {
-                return EntityDTO(id, name, hp, mp, money, atk, def, spd, skills);
+                return EntityDTO(id, name, hp, mp, money, str, dex, _int, wis, cha, def, spd, skills);
             }
     
         private:
@@ -119,7 +151,11 @@ namespace TTOT::Datas
             uint32_t hp;
             uint32_t mp;
             uint32_t money;
-            uint32_t atk;
+            uint32_t str;
+            uint32_t dex;
+            uint32_t _int;
+            uint32_t wis;
+            uint32_t cha;
             uint32_t def;
             uint32_t spd;
             std::vector<uint32_t> skills;

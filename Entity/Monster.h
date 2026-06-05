@@ -17,7 +17,7 @@ namespace TTOT::Entities
                 oss << " ======================================" << std::endl;
                 oss << "    " << this->GetComponent<Components::HealthComponent>()->ToString() << std::endl;
                 // oss << "   mp: " << mp << std::endl;
-                // oss << "   atk: " << atk << std::endl;
+                // oss << "   str: " << str << std::endl;
                 // oss << "   def: " << def << std::endl;
                 // oss << "   spd: " << spd << std::endl;
                 oss << " ======================================" << std::endl;

@@ -4,6 +4,7 @@
 #include "Utility/SoundManager.h"
 #include "Network/ConnGemini.h"
 #include <memory>
+#include <ftxui/component/screen_interactive.hpp>
 
 
 namespace TTOT::Core
@@ -27,6 +28,12 @@ namespace TTOT::Core
             std::unique_ptr<TTOT::Network::ConnGemini> gemini;
             std::unique_ptr<TTOT::Core::SceneManager> sceneManager;
             std::unique_ptr<TTOT::Utilities::SoundManager> soundManager;
+            std::unique_ptr<TTOT::Utilities::ImageRenderer> imageRenderer;
+
+            ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::TerminalOutput();
+
+            TTOT::Core::Scenes::IScene* currentScene = nullptr;
+            int nextSceneId = -1;
         public:
             GameManager();
             void Run();

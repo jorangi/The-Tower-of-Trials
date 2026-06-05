@@ -24,7 +24,8 @@ namespace TTOT::Core
                     return std::make_unique<T>(context);
                 };
             }
-            std::unique_ptr<TTOT::Core::Scenes::IScene> LoadScene(int sceneId, TTOT::Core::GameContext& context);
+            TTOT::Core::Scenes::IScene* LoadScene(int sceneId, TTOT::Core::GameContext& context);
+            TTOT::Core::Scenes::IScene* GetCurrentScene();
             
     };
 }
