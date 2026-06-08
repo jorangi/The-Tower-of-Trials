@@ -9,6 +9,8 @@ endif()
 
 project(TowerOfTrials)
 
+add_compile_definitions(NOMINMAX)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -20,6 +22,7 @@ aux_source_directory(Core CORE_SRC)
 aux_source_directory(Core/Scene SCENE_SRC)
 aux_source_directory(Network NETWORK_SRC)
 aux_source_directory(Datas DATAS_SRC)
+aux_source_directory(Class DATAS_SRC)
 aux_source_directory(Entity ENTITY_SRC)
 aux_source_directory(Stat STAT_SRC)
 aux_source_directory(Component COMPONENT_SRC)
@@ -31,6 +34,7 @@ add_library(TTOTLibs STATIC
     ${SCENE_SRC}
     ${NETWORK_SRC}
     ${DATAS_SRC}
+    ${Class_SRC}
     ${ENTITY_SRC}
     ${STAT_SRC}
     ${COMPONENT_SRC}

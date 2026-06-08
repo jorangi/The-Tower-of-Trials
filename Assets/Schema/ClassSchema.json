@@ -1,0 +1,29 @@
+{
+    "type": "OBJECT",
+    "properties": {
+        "className": { "type": "STRING", "description": "사용자가 입력한 개념을 바탕으로 정한 세련된 직업 이름" },
+        "classDesc": { "type": "STRING", "description": "직업의 배경, 전투 스타일을 설명하는 대사 서술" },
+        "hp": { "type": "NUMBER", "description": "직업 기본 HP 능력치 (기준점 10 이하의 자연수)" },
+        "mp": { "type": "NUMBER", "description": "직업 기본 MP 능력치 (기준점 10 이하의 자연수)" },
+        "str": { "type": "NUMBER", "description": "기본 힘 능력치 (기준점 10 이하의 자연수)" },
+        "dex": { "type": "NUMBER", "description": "기본 민첩 능력치 (기준점 10 이하의 자연수)" },
+        "int": { "type": "NUMBER", "description": "기본 지력 능력치 (기준점 10 이하의 자연수)" },
+        "wis": { "type": "NUMBER", "description": "기본 지혜 능력치 (기준점 10 이하의 자연수)" },
+        "cha": { "type": "NUMBER", "description": "기본 매력 능력치 (기준점 10 이하의 자연수)" },
+        "def": { "type": "NUMBER", "description": "기본 방어력 능력치 (기준점 10 이하의 자연수)" },
+        "spd": { "type": "NUMBER", "description": "기본 속도 능력치 (기준점 10 이하의 자연수)" },
+        "hpMultiplier": { "type": "NUMBER", "description": "레벨업 시 HP 보정 계수 (기본 1.0, 약점 시 0.50~0.99, 특화 시 1.01~1.50)" },
+        "mpMultiplier": { "type": "NUMBER", "description": "레벨업 시 MP 보정 계수 (기본 1.0, 약점 시 0.50~0.99, 특화 시 1.01~1.50)" },
+        "strMultiplier": { "type": "NUMBER", "description": "힘 보정 계수 (기본 1.0, 약점 시 0.50~0.99, 특화 시 1.01~1.50)" },
+        "dexMultiplier": { "type": "NUMBER", "description": "민첩 보정 계수 (기본 1.0, 약점 시 0.50~0.99, 특화 시 1.01~1.50)" },
+        "intMultiplier": { "type": "NUMBER", "description": "지력 보정 계수 (기본 1.0, 약점 시 0.50~0.99, 특화 시 1.01~1.50)" },
+        "wisMultiplier": { "type": "NUMBER", "description": "지혜 보정 계수 (기본 1.0, 약점 시 0.50~0.99, 특화 시 1.01~1.50)" },
+        "chaMultiplier": { "type": "NUMBER", "description": "매력 보정 계수 (기본 1.0, 약점 시 0.50~0.99, 특화 시 1.01~1.50)" },
+        "defMultiplier": { "type": "NUMBER", "description": "방어력 보정 계수 (기본 1.0, 약점 시 0.50~0.99, 특화 시 1.01~1.50)" },
+        "spdMultiplier": { "type": "NUMBER", "description": "속도 보정 계수 (기본 1.0, 약점 시 0.50~0.99, 특화 시 1.01~1.50)" }
+    },
+    "required": [
+        "className", "classDesc", "hp", "mp", "str", "dex", "int", "wis", "cha", "def", "spd",
+        "hpMultiplier", "mpMultiplier", "strMultiplier", "dexMultiplier", "intMultiplier", "wisMultiplier", "chaMultiplier", "defMultiplier", "spdMultiplier"
+    ]
+}

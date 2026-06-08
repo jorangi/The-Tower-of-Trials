@@ -5,6 +5,8 @@
 #include "Network/ConnGemini.h"
 #include <memory>
 #include <ftxui/component/screen_interactive.hpp>
+#include "Entity/PlayerFactory.h"
+#include "Entity/MonsterFactory.h"
 
 
 namespace TTOT::Core
@@ -29,11 +31,15 @@ namespace TTOT::Core
             std::unique_ptr<TTOT::Core::SceneManager> sceneManager;
             std::unique_ptr<TTOT::Utilities::SoundManager> soundManager;
             std::unique_ptr<TTOT::Utilities::ImageRenderer> imageRenderer;
-
+            
             ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::TerminalOutput();
-
+            
             TTOT::Core::Scenes::IScene* currentScene = nullptr;
             int nextSceneId = -1;
+
+            std::unique_ptr<TTOT::Entities::PlayerFactory> playerFactory;
+            std::unique_ptr<TTOT::Entities::Player> player;
+            std::unique_ptr<TTOT::Entities::MonsterFactory> monsterFactory;
         public:
             GameManager();
             void Run();

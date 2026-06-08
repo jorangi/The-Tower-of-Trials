@@ -1,4 +1,3 @@
-#define NOMINMAX
 #include "Core/Event/GameLoopEvent.h"
 #include "Core/Event/VolumeChangeEvent.h"
 #include "Core/Event/VolumeGetEvent.h"
@@ -12,10 +11,11 @@
 #include "Core/Event/ScreenRefreshEvent.h"
 #include "Core/Scene/SettingScene.h"
 #include "Core/Scene/IntroScene.h"
+#include "Event/CreatingEntityEvent.h"
 
 namespace TTOT::Core
 {
-    GameManager::GameManager() : isRunning(false), gameState(TTOT::Core::GameState::None), screen(ftxui::ScreenInteractive::TerminalOutput())
+    GameManager::GameManager() : isRunning(false), gameState(TTOT::Core::GameState::None), screen(ftxui::ScreenInteractive::Fullscreen())
     {
         gemini = std::make_unique<TTOT::Network::ConnGemini>();
         sceneManager = std::make_unique<TTOT::Core::SceneManager>();
@@ -69,6 +69,17 @@ namespace TTOT::Core
         {
             auto volumes = soundManager->GetVolumes();
             event.onLoaded(volumes.masterVolume, volumes.bgmVolume, volumes.sfxVolume);
+        });
+        eventBus.Subscribe<TTOT::Core::Events::CreatingEntityEvent>([this](const TTOT::Core::Events::CreatingEntityEvent& event)
+        {
+            if(event.entityType == TTOT::Core::Events::EntityType::Player)
+            {
+                this->player = this->playerFactory->CreatePlayer(event.dto);
+            }
+            else if(event.entityType == TTOT::Core::Events::EntityType::Monster)
+            {
+                auto m = this->monsterFactory->CreateMonster(event.dto);
+            }
         });
     }
     void GameManager::Run()

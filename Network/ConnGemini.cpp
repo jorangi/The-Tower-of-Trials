@@ -40,23 +40,36 @@ namespace TTOT::Network
     }
     std::string ConnGemini::Request(const json& body)
     {
-        std::string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + apiKey;
+        std::string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
 
-        cpr::Response response = cpr::Post(
-            cpr::Url{url},
-            cpr::Header{{"Content-Type", "application/json"}},
-            cpr::Body{body.dump()}
-        );
-        if(response.status_code == 200)
+        int maxRetries = 3;
+        int delayMs = 1000;
+
+        for (int attempt = 0; attempt < maxRetries; attempt++)
         {
-            auto responseJson = json::parse(response.text);
-            std::string answer = responseJson["candidates"][0]["content"]["parts"][0]["text"];
-            return answer;
+            cpr::Response response = cpr::Post(
+                cpr::Url{url},
+                cpr::Header{{"Content-Type", "application/json"}},
+                cpr::Body{body.dump()}
+            );
+
+            if (response.status_code == 200)
+            {
+                auto responseJson = json::parse(response.text);
+                return responseJson["candidates"][0]["content"]["parts"][0]["text"];
+            }
+            else if (response.status_code == 503 && attempt < maxRetries - 1)
+            {
+                Sleep(delayMs);
+                delayMs *= 2;
+                continue;
+            }
+            else
+            {
+                return "Error: " + std::to_string(response.status_code) + " - " + response.text;
+            }
         }
-        else
-        {
-            return "Error: " + std::to_string(response.status_code) + " - " + response.text;
-        }
+        return "Error: 만료된 요청";
     }
     std::string ConnGemini::Request(const std::string& prompt)
     {

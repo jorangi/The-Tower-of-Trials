@@ -46,7 +46,7 @@ namespace TTOT::Utilities
                     int bot_idx = (orig_y_bot * width + orig_x) * 3;
                     bottom_color = Color::RGB(img_data[bot_idx], img_data[bot_idx + 1], img_data[bot_idx + 2]);
                 }
-                line.push_back(text("■") | color(bottom_color) | bgcolor(top_color));
+                line.push_back(text("▄") | color(bottom_color) | bgcolor(top_color));
             }
             rows.push_back(hbox(std::move(line)));
         }

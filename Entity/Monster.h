@@ -1,6 +1,9 @@
 #pragma once
 #include "Entity.h"
 #include <iostream>
+#include "Component/HealthComponent.h"
+#include "Component/ManaComponent.h"
+#include "Component/MoneyComponent.h"
 
 namespace TTOT::Entities
 {
@@ -16,6 +19,7 @@ namespace TTOT::Entities
                 oss << "   name: " << this->GetName() << std::endl;
                 oss << " ======================================" << std::endl;
                 oss << "    " << this->GetComponent<Components::HealthComponent>()->ToString() << std::endl;
+                oss << "    " << this->GetComponent<Components::ManaComponent>()->ToString() << std::endl;
                 // oss << "   mp: " << mp << std::endl;
                 // oss << "   str: " << str << std::endl;
                 // oss << "   def: " << def << std::endl;
