@@ -40,8 +40,28 @@ namespace TTOT::Class
 
         public:
             virtual std::string ToString() const override{return className + " : " + classDesc;}
-            std::string GetClassName() const {return className;};
-            std::string GetClassDesc() const {return classDesc;};
+            std::string GetName() const {return className;};
+            std::string GetDesc() const {return classDesc;};
+            float GetHp() const {return hp;};
+            float GetMp() const {return mp;};
+            float GetStr() const {return str;};
+            float GetDex() const {return dex;};
+            float GetInt() const {return _int;};
+            float GetWis() const {return wis;};
+            float GetCha() const {return cha;};
+            float GetDef() const {return def;};
+            float GetSpd() const {return spd;};
+            float GetHpMultiplier() const {return hpMultiplier;};
+            float GetMpMultiplier() const {return mpMultiplier;};
+            float GetStrMultiplier() const {return strMultiplier;};
+            float GetDexMultiplier() const {return dexMultiplier;};
+            float GetIntMultiplier() const {return intMultiplier;};
+            float GetWisMultiplier() const {return wisMultiplier;};
+            float GetChaMultiplier() const {return chaMultiplier;};
+            float GetDefMultiplier() const {return defMultiplier;};
+            float GetSpdMultiplier() const {return spdMultiplier;};
+            std::vector<uint32_t> GetSkills() const {return skills;};
+
             friend void from_json(const nlohmann::json& j, ClassBase& c)
             {
                 j.at("className").get_to(c.className);

@@ -51,6 +51,10 @@ namespace TTOT::Datas
             uint32_t GetSpd() const {return spd;}
             std::vector<uint32_t> GetSkills() const {return skills;}
             TTOT::Class::ClassBase* GetClassInfo() const {return classInfo.get();}
+            std::unique_ptr<TTOT::Class::ClassBase> ReleaseClassInfo() 
+            { 
+                return std::move(classInfo); 
+            }
 
             NLOHMANN_DEFINE_TYPE_INTRUSIVE(EntityDTO, id, name, hp, mp, money, str, dex, _int, wis, cha, def, spd, skills, classInfo)
 
@@ -114,7 +118,7 @@ namespace TTOT::Datas
                 this->money = money;
                 return *this;
             }
-            EntityDTOBuilder& Atk(uint32_t str)
+            EntityDTOBuilder& Str(uint32_t str)
             {
                 this->str = str;
                 return *this;

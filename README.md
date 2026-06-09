@@ -462,3 +462,55 @@ latest 모델(아마 3.5 flash preview)이 인기로 인해 과도한 요청 문
     - CMD의 고질적인 버그들(방향키 관련이 많은 듯)로 인해 시도하기는 했는데, 그냥 Windows Terminal을 쓰면 애초에 이런 문제가 없다.
 - pragma once가 달리지 않은 헤더들 일부를 고쳤다.
 
+# 26.06.10
+인트로씬의 마지막에 Purpose 부분에서 Gemini API를 이용해서 게임의 방향성을 유저의 입력에 따라 정하게끔 할 생각이다.<br>
+아직 생각 뿐이기는 한데, 게임 매니저의 방향성을 유저의 선택에 맞기는 것이다.<br>
+가령 탑에 온 목적이 돈 -> NPC들이 보물에 대한 언급을 함 / 탑에 온 목적이 명예 -> 과거의 영웅담 이런것들을 언급<br>
+이런식이다.<br>
+이 부분은 아직 추상적인 상상뿐이지만...
+
+### UI
+FieldScene에서는 맵 | 플레이어 UI를 가로로 보여줄 예정이다.<br>
+MUD게임은 순수 텍스트 기반이라 어찌보면 탑뷰 기반의 로그 비슷한 느낌이 되어간다.<br>
+현재 UI에는 UserInformation만 있긴 하다.
+
+- UserInformation 추가
+    - 플레이어의 이름, 클래스, 소지금, 스탯을 표시하며 ftxui::Element를 반환한다.
+
+후에 Map이나 Log 등을 추가할 수도 있다.<br>
+일단 UI 디자인 패턴을 사용할텐데, MVI를 사용해보고자 한다. 이미 eventBus가 있기 때문에 단방향으로 구현하기 쉽지 않을까..?
+
+### ClassBase
+- ClassBase의 각 변수들의 Getter를 추가했다.
+    - 스탯: 기본 투자 스탯 + 클래스 추가 스탯이기에, 외부에서 접근이 가능할 필요가 있다.
+
+### CreatingEntityEvent 변경
+- 내부에 gender를 추가하였다.
+- dto를 mutable로 변경하였다. (const -> mutable)
+    - Factory에서 unique_ptr을 사용하기에 IntroScene에서 Factory로 DTO의 소유권을 넘기기 위해 &&로 rvalue를 보내게끔 했는데, 이게 const와는 상극이라 mutable로 변경하였다.
+    - &&는 rvalue참조고, rvalue는 함수 내부에 있는 변수(힙 메모리)고 스코프를 지나면 사라져야 하는데, 이걸 move해주기 때문이다. 다만 이때 const로 매개변수를 받은지라 mutable이 필요했다.
+
+### GameManager 변경
+- FieldScene을 Register했다.
+- CreatePlayer를 위에서 말한대로 move로 변경했다. 성별은 임시로 false(남자)로 고정해두긴 했는데, 이는 받아오면 된다.
+- 플레이어의 정보를 context에 담기에는 너무 과한 참조인 것 같아서 이벤트로 받아오게끔 했다. 
+
+### IntroScene 변경
+- 기본 클래스(직업)를 JSON기반으로 수정하여 편집이나 조금 더 용이하고, ClassBase는 friend 함수로 JSON만을 파싱받기에 추가했다.
+- unique_ptr은 직접 대입이 아니라 make_unique를 해야하기에 parsing된 JSON을 make_unique로 해주는 작업을 추가했다.
+- 실제 입력된 정보를 바탕으로 DTO빌더로 빌드하고, 그걸 Publish해서 PlayerFactory로 생성해서 GameManager에 저장하는 로직을 추가했다.
+
+### EntityDTO 변경
+- gender와 Getter인 GetGender를 추가했다.
+- Class를 저장할 ClassInfo를 추가했다.
+
+### Player.h의 변경점
+- 매개변수 등을 const로 바꾸었다.
+
+### PlayerFactory 변경점
+- 앞서 말 한 것처럼 &&를 통해 dto의 rvalue를 사용한다.
+- gender가 추가되었다.
+- Class는 move로 저장된다.
+
+### ClassComponent 추가
+- 클래스의 정보는 직접 접근하는게 아니라 대상의 ClassComponent를 GetComponent해서 가져온다.

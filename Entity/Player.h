@@ -6,8 +6,8 @@ namespace TTOT::Entities
     class Player : public Entity
     {
         public:
-            Player(uint32_t id, const std::string& name): Entity(id, name){}
+            Player(const uint32_t id, const std::string& name, const bool gender = false): Entity(id, name){}
             std::string ToString() const override;
-            void ShowInfo();
+            void ShowInfo() const;
     };
 }

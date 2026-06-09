@@ -6,6 +6,7 @@
 #include <memory>
 #include <algorithm>
 #include "Component/Components.h"
+#include "Class/ClassBase.h"
 
 namespace TTOT::Entities
 {
@@ -21,9 +22,11 @@ namespace TTOT::Entities
         protected:
             uint32_t _id;
             std::string _name;
+            bool gender; //f: male, t: female
             uint32_t _next_id = 0;
             std::vector<Components::Component*> _compArr;
             std::vector<ComponentNode> _comps;
+            std::unique_ptr<TTOT::Class::ClassBase> classInfo;
         public:
             Entity(uint32_t id, const std::string& name="");
             virtual ~Entity() = default;
@@ -64,6 +67,7 @@ namespace TTOT::Entities
             }
             virtual uint32_t GetId() const {return _id;}
             virtual std::string GetName() const {return _name;}
+            const bool GetGender() const {return gender;}
             virtual std::string ToString() const = 0;
     };
 }

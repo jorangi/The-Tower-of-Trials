@@ -27,6 +27,7 @@ aux_source_directory(Entity ENTITY_SRC)
 aux_source_directory(Stat STAT_SRC)
 aux_source_directory(Component COMPONENT_SRC)
 aux_source_directory(Utility UTILITY_SRC)
+aux_source_directory(UI UI_SRC)
 aux_source_directory(Test TEST_SRC)
 
 add_library(TTOTLibs STATIC
@@ -39,7 +40,8 @@ add_library(TTOTLibs STATIC
     ${STAT_SRC}
     ${COMPONENT_SRC}
     ${UTILITY_SRC}
-)
+    ${UI_SRC}
+    )
 
 target_link_libraries(TTOTLibs PUBLIC 
     cpr::cpr 

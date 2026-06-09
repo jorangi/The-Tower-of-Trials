@@ -13,7 +13,7 @@ void Test_CreationMonster()
                             .Name("슬라임")
                             .Hp(30)
                             .Money(20)
-                            .Atk(5)
+                            .Str(5)
                             .Def(1)
                             .Spd(3)
                             .Build();

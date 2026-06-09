@@ -1,8 +1,11 @@
 #include "Core/Scene/IntroScene.h"
+#include "Core/Event/CreatingEntityEvent.h"
 #include "Core/Event/SceneChangeEvent.h"
 #include "Core/Event/ScreenRefreshEvent.h"
 #include <fstream>
-#include "Class/ClassBase.h"
+#include "Datas/EntityDTO.h"
+#include "Class/BasicClassTemplates.h"
+#include <string>
 
 using namespace ftxui;
 using namespace TTOT::Core::Scenes;
@@ -11,7 +14,7 @@ namespace TTOT::Core::Scenes
 {
     IntroScene::IntroScene(TTOT::Core::GameContext& context) : SceneBase(context), statPoints(7, 0)
     {
-        input = ftxui::Input(&typedBuffer, "이름을 입력해주세요...");
+        input = ftxui::Input(&typedBuffer, "내용을 입력해주세요...");
         input->TakeFocus();
     }
     void IntroScene::OnEnter()
@@ -41,10 +44,9 @@ namespace TTOT::Core::Scenes
                 try
                 {
                     auto parsedJson = nlohmann::json::parse(result);
-                    auto customJob = std::make_unique<TTOT::Class::ClassBase>();
-                    *customJob = parsedJson.get<TTOT::Class::ClassBase>();
-                    customClass = customJob->GetClassName();
-                    customClassDesc = customJob->GetClassDesc();
+                    classInfo = std::make_unique<TTOT::Class::ClassBase>(parsedJson.get<TTOT::Class::ClassBase>());
+                    customClass = classInfo->GetName();
+                    customClassDesc = classInfo->GetDesc();
                 }
                 catch(const std::exception& e)
                 {
@@ -64,6 +66,8 @@ namespace TTOT::Core::Scenes
         {
             if(introStep == IntroStep::InputName)
             {
+                typedBuffer = "";
+                userName = "";
                 context.eventBus.Publish(TTOT::Core::Events::SceneChangeEvent{0});
                 return;
             }
@@ -127,6 +131,7 @@ namespace TTOT::Core::Scenes
                     if(prevStep == IntroStep::ConfirmName) savedName[userName]++;
                     introStep = IntroStep::ConfirmName;
                     selectedIndex = 0;
+                    typedBuffer = "";
                 }
                 return;
             }
@@ -193,6 +198,7 @@ namespace TTOT::Core::Scenes
                             context.eventBus.Publish(TTOT::Core::Events::ScreenRefreshEvent{});
                         }
                     }).detach();
+                    typedBuffer = "";
                 }
                 return;
             }
@@ -205,21 +211,12 @@ namespace TTOT::Core::Scenes
             {
                 if(!typedBuffer.empty())
                 {
-                    adventurePurpose = typedBuffer;
-                    introStep = IntroStep::ProcessingWriteClass;
-                    lastUpdateTime = std::chrono::steady_clock::now();
-                    // geminiFuture = std::async(std::launch::async, [this]()
-                    // {
-                    //     return context.gemini.Request(std::string("다음 입력된 정보를 바탕으로 직업(클래스)를 만들고 서술하시오. 예시) 전사: 단단한 신체와 강력한 힘으로 전선의 선봉에 서는 자./도적: 어둠 속에 숨어 적의 허점을 찌르고 유유히 사라지는 암살자. 또한 답변 시 직업의 이름과 특징(배경 등)을 서술하시오.\n--\n사용자의 프롬프트 : ")+ std::string(customClass));
-                    // });
-                    // std::thread([this]()
-                    // {
-                    //     while(introStep == IntroStep::ProcessingWriteClass)
-                    //     {
-                    //         std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                    //         context.eventBus.Publish(TTOT::Core::Events::ScreenRefreshEvent{});
-                    //     }
-                    // }).detach();
+                    typedBuffer = "";
+                    // adventurePurpose = typedBuffer;
+                    // introStep = IntroStep::ProcessingWriteClass;
+                    // lastUpdateTime = std::chrono::steady_clock::now();
+                    context.eventBus.Publish(TTOT::Core::Events::SceneChangeEvent{3});
+                    return;
                 }
                 return;
             }
@@ -351,8 +348,11 @@ namespace TTOT::Core::Scenes
             }
             else if(introStep == IntroStep::SelectClass)
             {
-                className = basicClass[selectedIndex];
-                classDesc = basicClassDesc[selectedIndex];
+                const auto& classTemplates = TTOT::Class::BASIC_CLASS_TEMPLATES;
+                const auto& parsedJson = classTemplates[selectedIndex];
+                classInfo = std::make_unique<TTOT::Class::ClassBase>(parsedJson.get<TTOT::Class::ClassBase>());
+                className = classInfo->GetName();
+                classDesc = classInfo->GetDesc();
                 selectedIndex = 0;
                 introStep = IntroStep::StatPoint;
             }
@@ -392,6 +392,32 @@ namespace TTOT::Core::Scenes
             {
                 if(selectedIndex == 0)
                 {
+
+                    TTOT::Datas::EntityDTOBuilder builder;
+                    builder.Id(0)
+                        .Name(userName)
+                        .Hp(0)
+                        .Mp(0)
+                        .Str(statPoints[0])
+                        .Dex(statPoints[1])
+                        .Int(statPoints[2])
+                        .Wis(statPoints[3])
+                        .Cha(statPoints[4])
+                        .Def(statPoints[5])
+                        .Spd(statPoints[6])
+                        .Money(0)
+                        .Skills({})
+                        .ClassInfo(std::move(classInfo));
+                    
+                    auto playerDTO = builder.Build();
+
+                    context.eventBus.Publish(TTOT::Core::Events::CreatingEntityEvent{
+                        0,
+                        userName,
+                        userGender,
+                        TTOT::Core::Events::EntityType::Player,
+                        std::move(playerDTO)
+                    });
                     introStep = IntroStep::Purpose;
                 }
                 else if(selectedIndex == 1)
@@ -518,14 +544,24 @@ namespace TTOT::Core::Scenes
         }
         if(introStep == IntroStep::SelectClass)
         {
+            const auto& classTemplates = TTOT::Class::BASIC_CLASS_TEMPLATES;
             content.push_back(vbox({
                 text("클래스를 선택해주세요."),
                 vbox({
-                    text(basicClass[0] + ": " + basicClassDesc[0]) | color(Color::Red) | (selectedIndex == 0 ? bold : nothing),
-                    text(basicClass[1] + ": " + basicClassDesc[1]) | color(Color::NavyBlue) | (selectedIndex == 1 ? bold : nothing),
-                    text(basicClass[2] + ": " + basicClassDesc[2]) | color(Color::Green) | (selectedIndex == 2 ? bold : nothing),
-                    text(basicClass[3] + ": " + basicClassDesc[3]) | color(Color::Purple) | (selectedIndex == 3 ? bold : nothing),
-                    text(basicClass[4] + ": " + basicClassDesc[4]) | color(Color::Gold1) | (selectedIndex == 4 ? bold : nothing)
+                    text(classTemplates[0]["className"].get<std::string>() + ": " + classTemplates[0]["classDesc"].get<std::string>()) 
+                        | color(Color::Red) | (selectedIndex == 0 ? bold : nothing),
+
+                    text(classTemplates[1]["className"].get<std::string>() + ": " + classTemplates[1]["classDesc"].get<std::string>()) 
+                        | color(Color::NavyBlue) | (selectedIndex == 1 ? bold : nothing),
+
+                    text(classTemplates[2]["className"].get<std::string>() + ": " + classTemplates[2]["classDesc"].get<std::string>()) 
+                        | color(Color::Green) | (selectedIndex == 2 ? bold : nothing),
+
+                    text(classTemplates[3]["className"].get<std::string>() + ": " + classTemplates[3]["classDesc"].get<std::string>()) 
+                        | color(Color::Purple) | (selectedIndex == 3 ? bold : nothing),
+
+                    text(classTemplates[4]["className"].get<std::string>() + ": " + classTemplates[4]["classDesc"].get<std::string>()) 
+                        | color(Color::Gold1) | (selectedIndex == 4 ? bold : nothing)
                 })
             }));
         }

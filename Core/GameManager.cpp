@@ -11,7 +11,9 @@
 #include "Core/Event/ScreenRefreshEvent.h"
 #include "Core/Scene/SettingScene.h"
 #include "Core/Scene/IntroScene.h"
+#include "Core/Scene/FieldScene.h"
 #include "Event/CreatingEntityEvent.h"
+#include "Event/PlayerGetEvent.h"
 
 namespace TTOT::Core
 {
@@ -74,12 +76,16 @@ namespace TTOT::Core
         {
             if(event.entityType == TTOT::Core::Events::EntityType::Player)
             {
-                this->player = this->playerFactory->CreatePlayer(event.dto);
+                this->player = this->playerFactory->CreatePlayer(std::move(event.dto), false);
             }
             else if(event.entityType == TTOT::Core::Events::EntityType::Monster)
             {
                 auto m = this->monsterFactory->CreateMonster(event.dto);
             }
+        });
+        eventBus.Subscribe<TTOT::Core::Events::PlayerGetEvent>([this](const TTOT::Core::Events::PlayerGetEvent& event)
+        {
+            if(this->player != nullptr) event.onLoaded(*(this->player));
         });
     }
     void GameManager::Run()
@@ -89,6 +95,7 @@ namespace TTOT::Core
         sceneManager->RegisterScene<TTOT::Core::Scenes::TitleScene>(0);
         sceneManager->RegisterScene<TTOT::Core::Scenes::SettingScene>(1);
         sceneManager->RegisterScene<TTOT::Core::Scenes::IntroScene>(2);
+        sceneManager->RegisterScene<TTOT::Core::Scenes::FieldScene>(3);
         GameContext context{eventBus, *imageRenderer, *gemini};
         this->currentScene = sceneManager->LoadScene(0, context);
         context.eventBus.Publish(TTOT::Core::Events::VolumeChangeEvent{TTOT::Core::Events::VolumeType::Master, 0});

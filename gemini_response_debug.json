@@ -1,0 +1,22 @@
+{
+  "className": "다크나이트",
+  "classDesc": "어둠의 힘으로 타락한 기사. 강인한 육체와 검술로 전장을 압도하며, 시체를 조종하고 생명력을 흡수하는 사령술로 적을 공포에 떨게 한다. 마법과 무력을 겸비한 전장의 지배자.",
+  "hp": 4,
+  "mp": 3,
+  "str": 3,
+  "dex": 1,
+  "int": 4,
+  "wis": 1,
+  "cha": 1,
+  "def": 2,
+  "spd": 1,
+  "hpMultiplier": 1.20,
+  "mpMultiplier": 1.20,
+  "strMultiplier": 1.15,
+  "dexMultiplier": 0.80,
+  "intMultiplier": 1.30,
+  "wisMultiplier": 0.80,
+  "chaMultiplier": 0.90,
+  "defMultiplier": 1.10,
+  "spdMultiplier": 0.70
+}

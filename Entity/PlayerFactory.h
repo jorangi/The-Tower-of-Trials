@@ -8,6 +8,6 @@ namespace TTOT::Entities
     class PlayerFactory
     {
         public:
-            static std::unique_ptr<TTOT::Entities::Player> CreatePlayer(const TTOT::Datas::EntityDTO& dto);
+            static std::unique_ptr<TTOT::Entities::Player> CreatePlayer(TTOT::Datas::EntityDTO&& dto, const bool gender = false);
     };
 }

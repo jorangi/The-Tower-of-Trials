@@ -1,4 +1,5 @@
 #pragma once
+#include <nlohmann/json.hpp>
 #include "Core/Scene/SceneBase.h"
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/component_base.hpp>
@@ -6,6 +7,7 @@
 #include <vector>
 #include <future>
 #include <chrono>
+#include <Class/ClassBase.h>
 
 namespace TTOT::Core::Scenes
 {
@@ -50,6 +52,7 @@ namespace TTOT::Core::Scenes
             };
             std::string customClass = "";
             std::string customClassDesc = "";
+            std::unique_ptr<TTOT::Class::ClassBase> classInfo;
             std::string className = "";
             std::string classDesc = "";
             std::string adventurePurpose = "";

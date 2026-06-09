@@ -15,7 +15,8 @@ namespace TTOT::Core::Events
     {
         uint32_t entityId;
         std::string entityName;
+        bool gender = false;
         TTOT::Core::Events::EntityType entityType;
-        const TTOT::Datas::EntityDTO dto;
+        mutable TTOT::Datas::EntityDTO dto;
     };
 }

@@ -12,6 +12,7 @@ namespace TTOT::Entities
         std::ostringstream oss;
         oss << "┌──────────────────────────────────────┐" << endl;
         oss << "   이름: " << _name << endl;
+        oss << "   성별: " << (gender ? "여자" : "남자") << endl;
         oss << "========================================" << endl;
         oss << "   " << GetComponent<Components::HealthComponent>()->ToString() << endl;
         oss << "   " << GetComponent<Components::ManaComponent>()->ToString() << endl;
@@ -21,7 +22,7 @@ namespace TTOT::Entities
         oss << "└──────────────────────────────────────┘" << endl;
         return oss.str();
     }
-    void Player::ShowInfo()
+    void Player::ShowInfo() const
     {
         std::cout << ToString() << endl;
     }

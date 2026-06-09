@@ -3,12 +3,13 @@
 #include "Component/ManaComponent.h"
 #include "Component/MoneyComponent.h"
 #include "Component/StatComponent.h"
+#include "Component/ClassComponent.h"
 
 namespace TTOT::Entities
 {
-    std::unique_ptr<TTOT::Entities::Player> TTOT::Entities::PlayerFactory::CreatePlayer(const TTOT::Datas::EntityDTO& dto)
+    std::unique_ptr<TTOT::Entities::Player> TTOT::Entities::PlayerFactory::CreatePlayer(TTOT::Datas::EntityDTO&& dto, const bool gender)
     {
-        auto player = std::make_unique<Player>(dto.GetId(), dto.GetName());
+        auto player = std::make_unique<Player>(dto.GetId(), dto.GetName(), gender);
         player->AddComponent(std::make_unique<Components::HealthComponent>(dto.GetHP()));
         player->AddComponent(std::make_unique<Components::ManaComponent>(dto.GetMP()));
         player->AddComponent(std::make_unique<Components::MoneyComponent>(dto.GetMoney()));
@@ -21,6 +22,11 @@ namespace TTOT::Entities
         stat->SetDEF(dto.GetDef());
         stat->SetSPD(dto.GetSpd());
         player->AddComponent(std::move(stat->Build()));
+        auto movedClass = dto.ReleaseClassInfo();
+        if (movedClass != nullptr) 
+        {
+            player->AddComponent(std::make_unique<Components::ClassComponent>(std::move(movedClass)));
+        }
         return std::move(player);
     }
 }
