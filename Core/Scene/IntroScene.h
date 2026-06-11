@@ -26,7 +26,9 @@ namespace TTOT::Core::Scenes
         ConfirmStats,
         finalConfirm,
         amendData,
-        Purpose
+        Purpose,
+        ProcessingWritePurpose,
+        Proposal,
     };
 
     class IntroScene : public SceneBase
@@ -56,6 +58,7 @@ namespace TTOT::Core::Scenes
             std::string className = "";
             std::string classDesc = "";
             std::string adventurePurpose = "";
+            std::string guidance;
             std::future<std::string> geminiFuture;
             double elapsedTime;
             uint32_t statPoint = 10;
