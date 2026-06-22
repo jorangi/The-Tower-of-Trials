@@ -2,13 +2,15 @@
 #include <ostream>
 #include <iostream>
 #include <sstream>
+#include "Core/ISaveData.h"
+#include <nlohmann/json.hpp>
 #include "Stat/ModifiableStat.h"
 #include "Component/Components.h"
 #include "Utility/Action.h"
 
 namespace TTOT::Components
 {
-    class ManaComponent : public Component
+    class ManaComponent : public Component, public Core::ISaveData
     {
         private:
             TTOT::Utilities::Action<int> OnManaChanged;
@@ -28,6 +30,24 @@ namespace TTOT::Components
             {
                 currentMP -= val;
                 OnManaChanged.Invoke(currentMP);
+            }
+            
+            TTOT::Stats::ModifiableStat GetMaxMP()
+            {
+                return _maxMP;
+            }
+            int GetCurrentMP() const {return currentMP;}
+            void Serialize(nlohmann::json& j) const override
+            {
+                j["currentMP"] = currentMP;
+                j["baseMaxMP"] = _maxMP.GetBaseValue();
+            }
+            void Deserialize(const nlohmann::json& j) override
+            {
+                j.at("currentMP").get_to(currentMP);
+                int baseMaxMP = 0;
+                j.at("baseMaxMP").get_to(baseMaxMP);
+                _maxMP = TTOT::Stats::ModifiableStat(baseMaxMP, _maxMP.GetStatName());
             }
     };
 }

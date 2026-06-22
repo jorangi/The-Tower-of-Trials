@@ -40,7 +40,7 @@ namespace TTOT::Network
     }
     std::string ConnGemini::Request(const json& body)
     {
-        std::string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
+        std::string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=" + apiKey;
 
         int maxRetries = 3;
         int delayMs = 1000;

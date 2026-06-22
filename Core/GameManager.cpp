@@ -2,18 +2,25 @@
 #include "Core/Event/VolumeChangeEvent.h"
 #include "Core/Event/VolumeGetEvent.h"
 #include "Core/GameManager.h"
+#include <ctime>
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
+#include "Core/MasterSaveData.h"
+#include "Core/SaveManager.h"
 #include "Core/Scene/TitleScene.h"
 #include "Core/Event/SceneChangeEvent.h"
 #include "Core/Event/SoundEvent.h"
 #include "Core/Event/ScreenRefreshEvent.h"
+#include "Core/Event/SaveRequestEvent.h"
 #include "Core/Scene/SettingScene.h"
 #include "Core/Scene/IntroScene.h"
 #include "Core/Scene/FieldScene.h"
 #include "Event/CreatingEntityEvent.h"
 #include "Event/PlayerGetEvent.h"
+#include "Event/InjectPurposeEvent.h"
+#include <chrono>
+#include <sstream>
 
 namespace TTOT::Core
 {
@@ -23,7 +30,8 @@ namespace TTOT::Core
         sceneManager = std::make_unique<TTOT::Core::SceneManager>();
         soundManager = std::make_unique<TTOT::Utilities::SoundManager>();
         imageRenderer = std::make_unique<TTOT::Utilities::ImageRenderer>();
-
+        saveManager = std::make_unique<TTOT::Core::SaveManager>();
+        context = std::make_unique<TTOT::Core::GameContext>(eventBus, *imageRenderer, *gemini);
         eventBus.Subscribe<TTOT::Core::Events::SoundEvent>([this](const TTOT::Core::Events::SoundEvent& event)
         {
             if(event.key.rfind("BGM_", 0) == 0)
@@ -87,6 +95,29 @@ namespace TTOT::Core
         {
             if(this->player != nullptr) event.onLoaded(*(this->player));
         });
+        eventBus.Subscribe<TTOT::Core::Events::SaveRequestEvent>([this](const TTOT::Core::Events::SaveRequestEvent& event) mutable
+        {
+            TTOT::Core::MasterSaveData saveData;
+            nlohmann::json j;
+            this->player->Serialize(j);
+            saveData.slotIndex = event.slotIndex;
+            saveData.playerData = j;
+            auto now = std::chrono::system_clock::now();
+            auto now_time = std::chrono::system_clock::to_time_t(now);
+            std::tm localTm;
+            localtime_s(&localTm, &now_time);
+            std::stringstream ss;
+            ss << std::put_time(&localTm, "%Y-%m-%d %H:%M:%S");
+            saveData.saveTime = ss.str();
+            saveData.currentFloor = 1;
+
+            this->saveManager->OnSaveRequest(event.slotIndex, saveData, *(this->context));
+        });
+        eventBus.Subscribe<TTOT::Core::Events::InjectPurposeEvent>([this](const TTOT::Core::Events::InjectPurposeEvent& event)
+        {
+            this->player->SetPurpose(event.purpose);
+            this->player->SetGuidance(event.guidance);
+        });
     }
     void GameManager::Run()
     {
@@ -96,9 +127,8 @@ namespace TTOT::Core
         sceneManager->RegisterScene<TTOT::Core::Scenes::SettingScene>(1);
         sceneManager->RegisterScene<TTOT::Core::Scenes::IntroScene>(2);
         sceneManager->RegisterScene<TTOT::Core::Scenes::FieldScene>(3);
-        GameContext context{eventBus, *imageRenderer, *gemini};
-        this->currentScene = sceneManager->LoadScene(0, context);
-        context.eventBus.Publish(TTOT::Core::Events::VolumeChangeEvent{TTOT::Core::Events::VolumeType::Master, 0});
+        this->currentScene = sceneManager->LoadScene(0, *context);
+        context->eventBus.Publish(TTOT::Core::Events::VolumeChangeEvent{TTOT::Core::Events::VolumeType::Master, 0});
         auto input_handler = ftxui::CatchEvent(ftxui::Make<ftxui::ComponentBase>(), [this](const ftxui::Event& event)
         {
             if(this->sceneManager->GetCurrentScene() != nullptr)
@@ -108,7 +138,7 @@ namespace TTOT::Core
             }
             return false;
         });
-        auto renderer = ftxui::Renderer(input_handler, [this, &context]()
+        auto renderer = ftxui::Renderer(input_handler, [this]()
         {
             if(this->nextSceneId != -1)
             {
@@ -117,7 +147,7 @@ namespace TTOT::Core
                     this->currentScene->OnExit();
                 }
 
-                this->currentScene = sceneManager->LoadScene(this->nextSceneId, context);
+                this->currentScene = sceneManager->LoadScene(this->nextSceneId, *(this->context));
                 this->nextSceneId = -1;
 
                 if(this->currentScene != nullptr)

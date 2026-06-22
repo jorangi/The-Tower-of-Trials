@@ -23,7 +23,7 @@ namespace TTOT::UI
         auto classcomp = states.GetComponent<TTOT::Components::ClassComponent>();
         return vbox({
             window(
-                text((states.GetGender() ? "🧑🏻" : "👩🏻") + std::string("  플레이어정보")), 
+                text((states.GetGender() ? "👩🏻" : "🧑🏻") + std::string("  플레이어정보")), 
                 vbox({
                     hbox({text("이름: "), text(states.GetName())})  | color(Color::Cyan) | bold,
                     separator(),

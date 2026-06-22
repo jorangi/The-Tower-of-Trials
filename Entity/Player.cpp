@@ -26,4 +26,25 @@ namespace TTOT::Entities
     {
         std::cout << ToString() << endl;
     }
+    void Player::SetPurpose(const std::string& purpose)
+    {
+        this->purpose = purpose;
+    }
+    void Player::SetGuidance(const std::string& guidance)
+    {
+        this->guidance = guidance;
+    }
+    void Player::Serialize(nlohmann::json& j) const
+    {
+        Entity::Serialize(j);
+        j["purpose"] = purpose;
+        j["guidance"] = guidance;
+    }
+    void Player::Deserialize(const nlohmann::json& j)
+    {
+        Entity::Deserialize(j);
+
+        if (j.contains("purpose")) j.at("purpose").get_to(purpose);
+        if (j.contains("guidance"))  j.at("guidance").get_to(guidance);
+    }
 }

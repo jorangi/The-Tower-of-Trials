@@ -1,4 +1,6 @@
 #pragma once
+#include "Core/GameContext.h"
+#include "Core/SaveManager.h"
 #include "Core/SceneManager.h"
 #include "Core/EventBus.h"
 #include "Utility/SoundManager.h"
@@ -26,11 +28,13 @@ namespace TTOT::Core
             bool isRunning;
             TTOT::Core::GameState gameState;
             TTOT::Core::EventBus eventBus;
-
+            
             std::unique_ptr<TTOT::Network::ConnGemini> gemini;
             std::unique_ptr<TTOT::Core::SceneManager> sceneManager;
             std::unique_ptr<TTOT::Utilities::SoundManager> soundManager;
             std::unique_ptr<TTOT::Utilities::ImageRenderer> imageRenderer;
+            std::unique_ptr<TTOT::Core::SaveManager> saveManager;
+            std::unique_ptr<TTOT::Core::GameContext> context;
             
             ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::TerminalOutput();
             

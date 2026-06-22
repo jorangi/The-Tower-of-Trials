@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(VCPKG_TARGET_TRIPLET "x64-mingw-dynamic" CACHE STRING "")
 
 find_program(CCACHE_PROGRAM ccache)
@@ -20,9 +22,10 @@ find_package(ftxui REQUIRED)
 
 aux_source_directory(Core CORE_SRC)
 aux_source_directory(Core/Scene SCENE_SRC)
+aux_source_directory(Core/Scene/IntroSceneState INTRO_STATE_SRC)
 aux_source_directory(Network NETWORK_SRC)
 aux_source_directory(Datas DATAS_SRC)
-aux_source_directory(Class DATAS_SRC)
+aux_source_directory(Class CLASS_SRC)
 aux_source_directory(Entity ENTITY_SRC)
 aux_source_directory(Stat STAT_SRC)
 aux_source_directory(Component COMPONENT_SRC)
@@ -33,9 +36,10 @@ aux_source_directory(Test TEST_SRC)
 add_library(TTOTLibs STATIC
     ${CORE_SRC}
     ${SCENE_SRC}
+    ${INTRO_STATE_SRC}
     ${NETWORK_SRC}
     ${DATAS_SRC}
-    ${Class_SRC}
+    ${CLASS_SRC}
     ${ENTITY_SRC}
     ${STAT_SRC}
     ${COMPONENT_SRC}

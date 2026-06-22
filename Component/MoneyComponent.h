@@ -2,12 +2,14 @@
 #include <ostream>
 #include <iostream>
 #include <sstream>
+#include "Core/ISaveData.h"
+#include <nlohmann/json.hpp>
 #include "Component/Components.h"
 #include "Utility/Action.h"
 
 namespace TTOT::Components
 {
-    class MoneyComponent : public Component
+    class MoneyComponent : public Component, public Core::ISaveData
     {
         private:
             TTOT::Utilities::Action<int> OnMoneyChanged;
@@ -34,6 +36,14 @@ namespace TTOT::Components
             uint32_t GetMoney() const
             {
                 return money;
+            }
+            void Serialize(nlohmann::json& j) const override
+            {
+                j["money"] = money;
+            }
+            void Deserialize(const nlohmann::json& j) override
+            {
+                j.at("money").get_to(money);
             }
     };
 }

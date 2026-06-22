@@ -9,5 +9,7 @@ namespace TTOT::Core
         TTOT::Core::EventBus& eventBus;
         TTOT::Utilities::ImageRenderer& imageRenderer;
         TTOT::Network::ConnGemini& gemini;
+        GameContext(EventBus& eb, Utilities::ImageRenderer& ir, Network::ConnGemini& gm)
+            : eventBus(eb), imageRenderer(ir), gemini(gm) {}
     };
 }

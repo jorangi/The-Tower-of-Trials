@@ -1,8 +1,8 @@
 {
     "type": "OBJECT",
     "properties": {
-        "className": { "type": "STRING", "description": "사용자가 입력한 개념을 바탕으로 정한 세련된 직업 이름" },
-        "classDesc": { "type": "STRING", "description": "직업의 배경, 전투 스타일을 설명하는 대사 서술" },
+        "className": { "type": "STRING", "description": "사용자가 입력한 개념을 바탕으로 정한 세련된 직업 이름." },
+        "classDesc": { "type": "STRING", "description": "돌죽(DCSS)이나 로그(Rogue) 스타일의 탑뷰 텍스트 기반 턴제 로그라이크 게임 세계관에 맞춘 직업 설명. 이 직업의 전투 외적인 특징(세상과의 상호작용을 위함)과 매 턴(Turn)마다 어떤 방식으로 전투를 치르는지, 전술적 장단점과 턴제 게임으로서의 플레이 스타일을 매끄러운 텍스트 RPG 대사 톤으로 서술. 너무 길지 않게 서술할것." },
         "hp": { "type": "NUMBER", "description": "직업 기본 HP 능력치 (기준점 10 이하의 자연수)" },
         "mp": { "type": "NUMBER", "description": "직업 기본 MP 능력치 (기준점 10 이하의 자연수)" },
         "str": { "type": "NUMBER", "description": "기본 힘 능력치 (기준점 10 이하의 자연수)" },

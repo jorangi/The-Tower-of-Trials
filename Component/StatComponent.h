@@ -3,7 +3,9 @@
 #include <iostream>
 #include <sstream>
 #include "Component/Components.h"
+#include "Core/ISaveData.h"
 #include "Stat/ModifiableStat.h"
+#include <nlohmann/json.hpp>
 
 namespace TTOT::Components
 {
@@ -30,7 +32,7 @@ namespace TTOT::Components
             std::unique_ptr<StatComponent> Build();
     };
 
-    class StatComponent : public Component
+    class StatComponent : public Component, public Core::ISaveData
     {
         private:
             friend std::unique_ptr<StatComponent> StatComponentBuilder::Build();
@@ -75,6 +77,36 @@ namespace TTOT::Components
                 oss << "SPD: " << spd.GetValue() << endl;
 
                 return oss.str();
+            }
+            void Serialize(nlohmann::json& j) const override
+            {
+                j["str"] = str.GetBaseValue();
+                j["dex"] = dex.GetBaseValue();
+                j["int"] = _int.GetBaseValue();
+                j["wis"] = wis.GetBaseValue();
+                j["cha"] = cha.GetBaseValue();
+                j["def"] = def.GetBaseValue();
+                j["spd"] = spd.GetBaseValue();
+            }
+            void Deserialize(const nlohmann::json& j) override
+            {
+                int strBase = 0, dexBase = 0, intBase = 0, wisBase = 0, chaBase = 0, defBase = 0, spdBase = 0;
+
+                j.at("str").get_to(strBase);
+                j.at("dex").get_to(dexBase);
+                j.at("int").get_to(intBase);
+                j.at("wis").get_to(wisBase);
+                j.at("cha").get_to(chaBase);
+                j.at("def").get_to(defBase);
+                j.at("spd").get_to(spdBase);
+
+                str = TTOT::Stats::ModifiableStat(strBase, str.GetStatName());
+                dex = TTOT::Stats::ModifiableStat(dexBase, dex.GetStatName());
+                _int = TTOT::Stats::ModifiableStat(intBase, _int.GetStatName());
+                wis = TTOT::Stats::ModifiableStat(wisBase, wis.GetStatName());
+                cha = TTOT::Stats::ModifiableStat(chaBase, cha.GetStatName());
+                def = TTOT::Stats::ModifiableStat(defBase, def.GetStatName());
+                spd = TTOT::Stats::ModifiableStat(spdBase, spd.GetStatName());
             }
     };
     inline std::unique_ptr<StatComponent> StatComponentBuilder::Build()

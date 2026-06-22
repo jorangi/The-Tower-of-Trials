@@ -1,5 +1,7 @@
 #pragma once
+#include "Core/ISaveData.h"
 #include "Class/IClass.h"
+#include <nlohmann/json_fwd.hpp>
 #include <stdint.h>
 #include <vector>
 #include <string>
@@ -7,7 +9,7 @@
 
 namespace TTOT::Class
 {
-    class ClassBase : public IClass
+    class ClassBase : public IClass, public Core::ISaveData
     {
         private:
             //직업 기본 정보
@@ -36,7 +38,6 @@ namespace TTOT::Class
             float spdMultiplier;
             //직업 내장 스킬
             std::vector<uint32_t> skills;
-            //
 
         public:
             virtual std::string ToString() const override{return className + " : " + classDesc;}
@@ -62,28 +63,59 @@ namespace TTOT::Class
             float GetSpdMultiplier() const {return spdMultiplier;};
             std::vector<uint32_t> GetSkills() const {return skills;};
 
-            friend void from_json(const nlohmann::json& j, ClassBase& c)
+            void Serialize(nlohmann::json& j) const override
             {
-                j.at("className").get_to(c.className);
-                j.at("classDesc").get_to(c.classDesc);
-                j.at("hp").get_to(c.hp);
-                j.at("mp").get_to(c.mp);
-                j.at("str").get_to(c.str);
-                j.at("dex").get_to(c.dex);
-                j.at("int").get_to(c._int);
-                j.at("wis").get_to(c.wis);
-                j.at("cha").get_to(c.cha);
-                j.at("def").get_to(c.def);
-                j.at("spd").get_to(c.spd);
-                j.at("hpMultiplier").get_to(c.hpMultiplier);
-                j.at("mpMultiplier").get_to(c.mpMultiplier);
-                j.at("strMultiplier").get_to(c.strMultiplier);
-                j.at("dexMultiplier").get_to(c.dexMultiplier);
-                j.at("intMultiplier").get_to(c.intMultiplier);
-                j.at("wisMultiplier").get_to(c.wisMultiplier);
-                j.at("chaMultiplier").get_to(c.chaMultiplier);
-                j.at("defMultiplier").get_to(c.defMultiplier);
-                j.at("spdMultiplier").get_to(c.spdMultiplier);
+                j = nlohmann::json
+                {
+                    {"classId", classId},
+                    {"className", className},
+                    {"classDesc", classDesc},
+                    {"hp", hp},
+                        {"mp", mp},
+                        {"str", str},
+                        {"dex", dex},
+                        {"int", _int},
+                        {"wis", wis},
+                        {"cha", cha},
+                        {"def", def},
+                        {"spd", spd},
+                        {"hpMultiplier", hpMultiplier},
+                        {"mpMultiplier", mpMultiplier},
+                        {"strMultiplier", strMultiplier},
+                        {"dexMultiplier", dexMultiplier},
+                        {"intMultiplier", intMultiplier},
+                        {"wisMultiplier", wisMultiplier},
+                        {"chaMultiplier", chaMultiplier},
+                        {"defMultiplier", defMultiplier},
+                        {"spdMultiplier", spdMultiplier},
+                        {"skills", skills}
+                };
+            }
+            void Deserialize(const nlohmann::json& j) override
+            {
+                j.at("className").get_to(className);
+                j.at("classDesc").get_to(classDesc);
+                j.at("hp").get_to(hp);
+                j.at("mp").get_to(mp);
+                j.at("str").get_to(str);
+                j.at("dex").get_to(dex);
+                j.at("int").get_to(_int);
+                j.at("wis").get_to(wis);
+                j.at("cha").get_to(cha);
+                j.at("def").get_to(def);
+                j.at("spd").get_to(spd);
+                j.at("hpMultiplier").get_to(hpMultiplier);
+                j.at("mpMultiplier").get_to(mpMultiplier);
+                j.at("strMultiplier").get_to(strMultiplier);
+                j.at("dexMultiplier").get_to(dexMultiplier);
+                j.at("intMultiplier").get_to(intMultiplier);
+                j.at("wisMultiplier").get_to(wisMultiplier);
+                j.at("chaMultiplier").get_to(chaMultiplier);
+                j.at("defMultiplier").get_to(defMultiplier);
+                j.at("spdMultiplier").get_to(spdMultiplier);
+
+                if(j.contains("classId")) j.at("classId").get_to(classId);
+                if(j.contains("skills")) j.at("skills").get_to(skills);
             }
     };
 }
