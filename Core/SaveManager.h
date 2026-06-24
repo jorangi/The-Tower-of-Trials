@@ -7,5 +7,6 @@ namespace TTOT::Core
     {
         public:
             void OnSaveRequest(int slotIndex, MasterSaveData saveData, GameContext& context);
+            void OnLoadRequest(int slotIndex, GameContext& context);
     };
 }

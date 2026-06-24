@@ -59,10 +59,13 @@ target_include_directories(TTOTLibs PUBLIC ${_SOURCE_DIR}/include)
 add_executable(Test Test/SoundManagerTest.cpp)
 target_link_libraries(Test PRIVATE TTOTLibs)
 
+add_executable(SaveLoadTest Test/SaveLoadTest.cpp)
+target_link_libraries(SaveLoadTest PRIVATE TTOTLibs)
+
 add_executable(TheTowerOfTrials main.cpp)
 target_link_libraries(TheTowerOfTrials PRIVATE TTOTLibs)
 
-foreach(target TheTowerOfTrials Test TTOTLibs)
+foreach(target TheTowerOfTrials Test SaveLoadTest TTOTLibs)
     target_include_directories(${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 endforeach()
 

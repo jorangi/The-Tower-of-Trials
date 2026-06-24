@@ -5,8 +5,6 @@ namespace TTOT::Core::Scenes
 {
     class TitleScene : public SceneBase
     {
-        private:
-            bool saveFile = false;
         public:
             TitleScene(TTOT::Core::GameContext& context);
             void OnEnter() override;

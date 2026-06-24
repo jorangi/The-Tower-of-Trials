@@ -26,6 +26,12 @@ namespace TTOT::Core::Scenes
     }
     ftxui::Element FieldScene::Render()
     {
+        if (!userInfoUI)
+        {
+            return vbox({
+                text("불러오는 중...")
+            }) | border;
+        }
         return hbox({
             separator(),
             userInfoUI->Render()
