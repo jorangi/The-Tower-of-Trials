@@ -6,6 +6,7 @@
 #include "Core/ISaveData.h"
 #include "Stat/ModifiableStat.h"
 #include <nlohmann/json.hpp>
+#include "Utility/Action.h"
 
 namespace TTOT::Components
 {
@@ -108,6 +109,13 @@ namespace TTOT::Components
                 def = TTOT::Stats::ModifiableStat(defBase, def.GetStatName());
                 spd = TTOT::Stats::ModifiableStat(spdBase, spd.GetStatName());
             }
+            TTOT::Stats::ModifiableStat& GetSTRStat() { return str; }
+            TTOT::Stats::ModifiableStat& GetDEXStat() { return dex; }
+            TTOT::Stats::ModifiableStat& GetINTStat() { return _int; }
+            TTOT::Stats::ModifiableStat& GetWISStat() { return wis; }
+            TTOT::Stats::ModifiableStat& GetCHAStat() { return cha; }
+            TTOT::Stats::ModifiableStat& GetDEFStat() { return def; }
+            TTOT::Stats::ModifiableStat& GetSPDStat() { return spd; }
     };
     inline std::unique_ptr<StatComponent> StatComponentBuilder::Build()
     {

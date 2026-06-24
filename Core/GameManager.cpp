@@ -21,16 +21,18 @@
 #include "Core/Scene/SaveFileLoadScene.h"
 #include "Core/Scene/SettingScene.h"
 #include "Core/Scene/TitleScene.h"
+#include "Event/AddStatModifiableEvent.h"
 #include "Event/CreatingEntityEvent.h"
 #include "Event/InjectPurposeEvent.h"
 #include "Event/PlayerGetEvent.h"
+#include "Core/Event/ChangeHealthEvent.h"
+#include "Core/Event/ChangeManaEvent.h"
 #include <chrono>
 #include <ctime>
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
 #include <sstream>
-
 
 namespace TTOT::Core {
 GameManager::GameManager()
@@ -90,12 +92,89 @@ GameManager::GameManager()
       });
   eventBus.Subscribe<TTOT::Core::Events::CreatingEntityEvent>(
       [this](const TTOT::Core::Events::CreatingEntityEvent &event) {
+        uint32_t entityId = nextEntityId;
         if (event.entityType == TTOT::Core::Events::EntityType::Player) {
-          this->player =
-              this->playerFactory->CreatePlayer(std::move(event.dto), false);
+          this->player = this->playerFactory->CreatePlayer(
+              entityId, std::move(event.dto), false);
+          RegistryEntity(this->player.get());
         } else if (event.entityType ==
                    TTOT::Core::Events::EntityType::Monster) {
-          auto m = this->monsterFactory->CreateMonster(event.dto);
+          auto m = this->monsterFactory->CreateMonster(entityId, event.dto);
+          RegistryEntity(m.get());
+        }
+        *(event.entityId) = entityId;
+      });
+  eventBus.Subscribe<TTOT::Core::Events::AddStatModifiableEvent>(
+      [this](const TTOT::Core::Events::AddStatModifiableEvent &event) {
+        auto entity = this->GetEntity(event.entityId);
+        if (entity == nullptr)
+          return;
+        switch (event.statType) {
+        case TTOT::Core::Events::StatType::HP:
+          entity->GetComponent<TTOT::Components::HealthComponent>()
+              ->GetMaxHP()
+              .AddStatModifier(event.mod);
+          break;
+        case TTOT::Core::Events::StatType::MP:
+          entity->GetComponent<TTOT::Components::ManaComponent>()
+              ->GetMaxMP()
+              .AddStatModifier(event.mod);
+          break;
+        case TTOT::Core::Events::StatType::Str:
+          entity->GetComponent<TTOT::Components::StatComponent>()
+              ->GetSTRStat()
+              .AddStatModifier(event.mod);
+          break;
+        case TTOT::Core::Events::StatType::Dex:
+          entity->GetComponent<TTOT::Components::StatComponent>()
+              ->GetDEXStat()
+              .AddStatModifier(event.mod);
+          break;
+        case TTOT::Core::Events::StatType::Int:
+          entity->GetComponent<TTOT::Components::StatComponent>()
+              ->GetINTStat()
+              .AddStatModifier(event.mod);
+          break;
+        case TTOT::Core::Events::StatType::Wis:
+          entity->GetComponent<TTOT::Components::StatComponent>()
+              ->GetWISStat()
+              .AddStatModifier(event.mod);
+          break;
+        case TTOT::Core::Events::StatType::Cha:
+          entity->GetComponent<TTOT::Components::StatComponent>()
+              ->GetCHAStat()
+              .AddStatModifier(event.mod);
+          break;
+        case TTOT::Core::Events::StatType::Def:
+          entity->GetComponent<TTOT::Components::StatComponent>()
+              ->GetDEFStat()
+              .AddStatModifier(event.mod);
+          break;
+        case TTOT::Core::Events::StatType::Spd:
+          entity->GetComponent<TTOT::Components::StatComponent>()
+              ->GetSPDStat()
+              .AddStatModifier(event.mod);
+          break;
+        }
+      });
+  eventBus.Subscribe<TTOT::Core::Events::ChangeHealthEvent>(
+      [this](const TTOT::Core::Events::ChangeHealthEvent &event) {
+        auto entity = this->GetEntity(event.entityId);
+        if (entity == nullptr)
+          return;
+        if (auto *healthComp =
+                entity->GetComponent<TTOT::Components::HealthComponent>()) {
+          healthComp->ModifyHP(event.delta);
+        }
+      });
+  eventBus.Subscribe<TTOT::Core::Events::ChangeManaEvent>(
+      [this](const TTOT::Core::Events::ChangeManaEvent &event) {
+        auto entity = this->GetEntity(event.entityId);
+        if (entity == nullptr)
+          return;
+        if (auto *manaComp =
+                entity->GetComponent<TTOT::Components::ManaComponent>()) {
+          manaComp->ModifyMP(event.delta);
         }
       });
   eventBus.Subscribe<TTOT::Core::Events::PlayerGetEvent>(
@@ -156,6 +235,10 @@ GameManager::GameManager()
                     std::move(defaultClass)));
           }
           this->player->Deserialize(event.saveData.playerData);
+          entities[this->player->GetId()] = this->player.get();
+          if (nextEntityId <= this->player->GetId()) {
+            nextEntityId = this->player->GetId() + 1;
+          }
         }
       });
   eventBus.Subscribe<TTOT::Core::Events::InjectPurposeEvent>(
@@ -163,6 +246,26 @@ GameManager::GameManager()
         this->player->SetPurpose(event.purpose);
         this->player->SetGuidance(event.guidance);
       });
+}
+
+uint32_t TTOT::Core::GameManager::GameManager::RegistryEntity(
+    TTOT::Entities::Entity *entity) {
+  uint32_t id = nextEntityId;
+  entities[id] = entity;
+  nextEntityId++;
+  return id;
+}
+void TTOT::Core::GameManager::GameManager::UnregistryEntity(uint32_t entityId) {
+  if (auto it = entities.find(entityId); it != entities.end()) {
+    entities.erase(it);
+  }
+}
+TTOT::Entities::Entity *
+TTOT::Core::GameManager::GameManager::GetEntity(uint32_t entityId) {
+  if (auto it = entities.find(entityId); it != entities.end()) {
+    return it->second;
+  }
+  return nullptr;
 }
 void GameManager::Run() {
   isRunning = true;

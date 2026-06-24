@@ -31,11 +31,20 @@ namespace TTOT::Components
                 currentHP -= damage;
                 OnHealthChanged.Invoke(currentHP);
             }
-            TTOT::Stats::ModifiableStat GetMaxHP()
+            void ModifyHP(int delta)
+            {
+                currentHP += delta;
+                int maxHP = _maxHP.GetValue();
+                if (currentHP > maxHP) currentHP = maxHP;
+                if (currentHP < 0) currentHP = 0;
+                OnHealthChanged.Invoke(currentHP);
+            }
+            TTOT::Stats::ModifiableStat& GetMaxHP()
             {
                 return _maxHP;
             }
             int GetCurrentHP() const {return currentHP;}
+            TTOT::Utilities::Action<int>& GetOnHealthChanged() { return OnHealthChanged; }
             void Serialize(nlohmann::json& j) const override
             {
                 j["currentHP"] = currentHP;
@@ -47,6 +56,7 @@ namespace TTOT::Components
                 int baseMaxHP = 0;
                 j.at("baseMaxHP").get_to(baseMaxHP);
                 _maxHP = TTOT::Stats::ModifiableStat(baseMaxHP, _maxHP.GetStatName());
+                OnHealthChanged.Invoke(currentHP);
             }
     };
 }

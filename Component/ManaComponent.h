@@ -31,12 +31,21 @@ namespace TTOT::Components
                 currentMP -= val;
                 OnManaChanged.Invoke(currentMP);
             }
+            void ModifyMP(int delta)
+            {
+                currentMP += delta;
+                int maxMP = _maxMP.GetValue();
+                if (currentMP > maxMP) currentMP = maxMP;
+                if (currentMP < 0) currentMP = 0;
+                OnManaChanged.Invoke(currentMP);
+            }
             
-            TTOT::Stats::ModifiableStat GetMaxMP()
+            TTOT::Stats::ModifiableStat& GetMaxMP()
             {
                 return _maxMP;
             }
             int GetCurrentMP() const {return currentMP;}
+            TTOT::Utilities::Action<int>& GetOnManaChanged() { return OnManaChanged; }
             void Serialize(nlohmann::json& j) const override
             {
                 j["currentMP"] = currentMP;
@@ -48,6 +57,7 @@ namespace TTOT::Components
                 int baseMaxMP = 0;
                 j.at("baseMaxMP").get_to(baseMaxMP);
                 _maxMP = TTOT::Stats::ModifiableStat(baseMaxMP, _maxMP.GetStatName());
+                OnManaChanged.Invoke(currentMP);
             }
     };
 }

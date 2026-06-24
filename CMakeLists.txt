@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
+# Force configure rescanning of source files
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -31,6 +32,8 @@ aux_source_directory(Stat STAT_SRC)
 aux_source_directory(Component COMPONENT_SRC)
 aux_source_directory(Utility UTILITY_SRC)
 aux_source_directory(UI UI_SRC)
+aux_source_directory(UI/Presenter UI_Presenter_SRC)
+aux_source_directory(UI/View UI_View_SRC)
 aux_source_directory(Test TEST_SRC)
 
 add_library(TTOTLibs STATIC
@@ -45,6 +48,8 @@ add_library(TTOTLibs STATIC
     ${COMPONENT_SRC}
     ${UTILITY_SRC}
     ${UI_SRC}
+    ${UI_Presenter_SRC}
+    ${UI_View_SRC}
     )
 
 target_link_libraries(TTOTLibs PUBLIC 

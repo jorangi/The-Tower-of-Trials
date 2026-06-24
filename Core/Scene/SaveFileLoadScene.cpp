@@ -15,7 +15,6 @@ void SaveFileLoadScene::OnEnter() {
   selectedIndex = 0;
   outputText = "";
 
-  // Check each of the 10 save slots
   for (int i = 1; i <= 10; ++i) {
     std::string filename = "Save_Slot_" + std::to_string(i) + ".json";
     std::ifstream file(filename);
