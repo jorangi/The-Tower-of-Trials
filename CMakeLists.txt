@@ -67,10 +67,13 @@ target_link_libraries(Test PRIVATE TTOTLibs)
 add_executable(SaveLoadTest Test/SaveLoadTest.cpp)
 target_link_libraries(SaveLoadTest PRIVATE TTOTLibs)
 
+add_executable(BSPMapGeneratorTest Test/BSPMapGeneratorTest.cpp)
+target_link_libraries(BSPMapGeneratorTest PRIVATE TTOTLibs)
+
 add_executable(TheTowerOfTrials main.cpp)
 target_link_libraries(TheTowerOfTrials PRIVATE TTOTLibs)
 
-foreach(target TheTowerOfTrials Test SaveLoadTest TTOTLibs)
+foreach(target TheTowerOfTrials Test SaveLoadTest BSPMapGeneratorTest TTOTLibs)
     target_include_directories(${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 endforeach()
 
