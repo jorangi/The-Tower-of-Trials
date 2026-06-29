@@ -7,7 +7,7 @@ using namespace ftxui;
 namespace TTOT::UI::View {
 Element UserInformationView::Render() {
   return vbox({window(
-      text((gender ? "🧑🏻" : "👩🏻") + std::string("  플레이어정보")),
+      text((gender ? "👩🏻" : "🧑🏻") + std::string("  플레이어정보")),
       vbox({
           hbox({text("이름: "), text(name)}) | color(Color::Cyan) | bold,
           separator(),

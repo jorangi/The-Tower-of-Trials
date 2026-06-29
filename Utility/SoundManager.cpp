@@ -1,5 +1,6 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include "Utility/SoundManager.h"
+#include "Utility/PathHelper.h"
 #include <string>
 #include <iostream>
 #include <filesystem>
@@ -12,14 +13,19 @@ namespace TTOT::Utilities
         {
             std::cerr << "[SoundManager] 엔진 초기화 실패!" << std::endl;
         }
+        
         namespace fs = std::filesystem;
-        if(!fs::exists("Assets/Sounds") || !fs::is_directory("Assets/Sounds"))
+        fs::path soundsPath = GetAssetPath("Assets/Sounds");
+
+        if(!fs::exists(soundsPath) || !fs::is_directory(soundsPath))
         {
-            std::cerr << "[SoundManager] Assets/Sounds 폴더가 존재하지 않습니다!" << std::endl;
+            std::cerr << "[SoundManager] Assets/Sounds 폴더를 찾을 수 없습니다! 사운드 없이 진행합니다." << std::endl;
+            return; // Safety exit to prevent recursive_directory_iterator crash
         }
-        std::cout << "[SoundManager] 사운드 파일 등록 시작" << std::endl;
+
+        std::cout << "[SoundManager] 사운드 파일 등록 시작: " << soundsPath.string() << std::endl;
         int count = 0;
-        for(const auto& entry : fs::recursive_directory_iterator("Assets/Sounds"))
+        for(const auto& entry : fs::recursive_directory_iterator(soundsPath))
         {
             if(!entry.is_regular_file()) continue;
             fs::path filePath = entry.path();

@@ -2,6 +2,7 @@
 #include "Core/Event/LoadRequestEvent.h"
 #include "Core/Event/SceneChangeEvent.h"
 #include "Core/GameContext.h"
+#include "Utility/PathHelper.h"
 #include <fstream>
 #include <nlohmann/json.hpp>
 
@@ -17,7 +18,8 @@ void SaveFileLoadScene::OnEnter() {
 
   for (int i = 1; i <= 10; ++i) {
     std::string filename = "Save_Slot_" + std::to_string(i) + ".json";
-    std::ifstream file(filename);
+    std::string filepath = TTOT::Utilities::GetSavePath(filename).string();
+    std::ifstream file(filepath);
     if (file.is_open()) {
       try {
         nlohmann::json j;

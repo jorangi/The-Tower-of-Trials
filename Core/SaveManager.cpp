@@ -1,4 +1,5 @@
 #include "Core/SaveManager.h"
+#include "Utility/PathHelper.h"
 #include <exception>
 #include <fstream>
 #include <iostream>
@@ -19,11 +20,12 @@ namespace TTOT::Core
         {
             nlohmann::json json = saveData;
             string filename = "Save_Slot_" + to_string(slotIndex) + ".json";
+            string filepath = TTOT::Utilities::GetSavePath(filename).string();
 
-            ofstream file(filename);
+            ofstream file(filepath);
             if(!file.is_open())
             {
-                cerr << "[SaveManager] 파일을 생성하거나 열 수 없습니다: " << filename << endl;
+                cerr << "[SaveManager] 파일을 생성하거나 열 수 없습니다: " << filepath << endl;
                 return;
             }
             file << json.dump(4);
@@ -42,10 +44,11 @@ namespace TTOT::Core
         try
         {
             string filename = "Save_Slot_" + to_string(slotIndex) + ".json";
-            ifstream file(filename);
+            string filepath = TTOT::Utilities::GetSavePath(filename).string();
+            ifstream file(filepath);
             if(!file.is_open())
             {
-                cerr << "[SaveManager] 파일을 열 수 없습니다: " << filename << endl;
+                cerr << "[SaveManager] 파일을 열 수 없습니다: " << filepath << endl;
                 context.eventBus.Publish(Events::LoadCompleteEvent{slotIndex, false, {}, "파일을 열 수 없습니다."});
                 return;
             }

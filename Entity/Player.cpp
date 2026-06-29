@@ -34,11 +34,16 @@ namespace TTOT::Entities
     {
         this->guidance = guidance;
     }
+    void Player::SetQuestDataJson(const std::string& json)
+    {
+        this->questDataJson = json;
+    }
     void Player::Serialize(nlohmann::json& j) const
     {
         Entity::Serialize(j);
         j["purpose"] = purpose;
         j["guidance"] = guidance;
+        j["questDataJson"] = questDataJson;
     }
     void Player::Deserialize(const nlohmann::json& j)
     {
@@ -46,5 +51,6 @@ namespace TTOT::Entities
 
         if (j.contains("purpose")) j.at("purpose").get_to(purpose);
         if (j.contains("guidance"))  j.at("guidance").get_to(guidance);
+        if (j.contains("questDataJson")) j.at("questDataJson").get_to(questDataJson);
     }
 }

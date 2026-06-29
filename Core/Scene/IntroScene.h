@@ -61,6 +61,7 @@ namespace TTOT::Core::Scenes
         std::string adventurePurpose = "";
         ftxui::Component input;
         std::string guidance;
+        std::string questDataJson;
         std::string tempStat;
     };
     class IntroScene : public SceneBase

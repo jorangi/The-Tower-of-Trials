@@ -7,12 +7,11 @@
 #include <ostream>
 #include <sstream>
 
-
 namespace TTOT::Components {
 class MoneyComponent : public Component, public Core::ISaveData {
 private:
   TTOT::Utilities::Action<int> OnMoneyChanged;
-  uint32_t money;
+  uint32_t money = 0;
 
 public:
   MoneyComponent(uint32_t init) : money(init) {}

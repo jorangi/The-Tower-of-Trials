@@ -11,6 +11,7 @@
 namespace TTOT::Datas {
 class EntityDTO {
 private:
+  bool gender;
   std::string name;
   uint32_t hp; // 체력
   uint32_t mp; // 마력
@@ -26,16 +27,18 @@ private:
   std::unique_ptr<TTOT::Class::ClassBase> classInfo;
 
 public:
-  EntityDTO(const std::string &name, uint32_t hp, uint32_t mp, uint32_t money,
-            uint32_t str, uint32_t dex, uint32_t _int, uint32_t wis,
-            uint32_t cha, uint32_t def, uint32_t spd,
+  EntityDTO(bool gender, const std::string &name, uint32_t hp, uint32_t mp,
+            uint32_t money, uint32_t str, uint32_t dex, uint32_t _int,
+            uint32_t wis, uint32_t cha, uint32_t def, uint32_t spd,
             std::vector<uint32_t> skills,
             std::unique_ptr<TTOT::Class::ClassBase> classInfo)
-      : name(name), hp(hp), mp(mp), money(money), str(str), dex(dex),
-        _int(_int), wis(wis), cha(cha), def(def), spd(spd), skills(skills) {
+      : gender(gender), name(name), hp(hp), mp(mp), money(money), str(str),
+        dex(dex), _int(_int), wis(wis), cha(cha), def(def), spd(spd),
+        skills(skills) {
     this->classInfo = std::move(classInfo);
   }
 
+  bool GetGender() const { return gender; }
   std::string GetName() const { return name; }
   uint32_t GetHP() const { return hp; }
   uint32_t GetMP() const { return mp; }
@@ -87,6 +90,10 @@ public:
 };
 class EntityDTOBuilder {
 public:
+  EntityDTOBuilder &Gender(bool gender) {
+    this->gender = gender;
+    return *this;
+  }
   EntityDTOBuilder &Name(const std::string &name) {
     this->name = name;
     return *this;
@@ -141,11 +148,12 @@ public:
     return *this;
   }
   EntityDTO Build() {
-    return EntityDTO(name, hp, mp, money, str, dex, _int, wis, cha, def, spd,
-                     skills, std::move(classInfo));
+    return EntityDTO(gender, name, hp, mp, money, str, dex, _int, wis, cha, def,
+                     spd, skills, std::move(classInfo));
   }
 
 private:
+  bool gender;
   std::string name;
   uint32_t hp;
   uint32_t mp;

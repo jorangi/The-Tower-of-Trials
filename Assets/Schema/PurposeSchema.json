@@ -1,10 +1,109 @@
 {
     "type": "OBJECT",
     "properties": {
-        "guidanceText": { 
-            "type": "STRING", 
-            "description": "사용자의 목적에 맞춰 생성된 신비로운 첫 행동 지침 대사. 사용자의 직업 정보와 요청과 세계관을 잘 연관시켜 내용에 녹아내어야합니다."
+        "guidanceText": {
+            "type": "STRING",
+            "description": "사용자의 목적과 세계관, 선택한 직업의 배경을 융합하여 작성된 신비롭고 몰입감 있는 첫 번째 행동 지침 대사."
+        },
+        "narrativeObjective": {
+            "type": "STRING",
+            "description": "이 퀘스트의 궁극적인 서사적 목표 요약 (예: '기계공 바르가스를 찾아 공명 장치 제작법 알아내기', '흑피 서책에서 파멸의 단서 획득')"
+        },
+        "targetFloor": {
+            "type": "INTEGER",
+            "description": "이 시나리오/퀘스트가 발생하고 해결되어야 하는 탑의 대상 층수 (예: 1층 안전지대면 1, 2층 필드면 2)"
+        },
+        "mandatoryEntities": {
+            "type": "ARRAY",
+            "description": "맵 생성 엔진이 해당 층을 만들 때 반드시 방이나 복도 어딘가에 필수로 배치해야 하는 주요 NPC 또는 몬스터 정보 목록",
+            "items": {
+                "type": "OBJECT",
+                "properties": {
+                    "id": {
+                        "type": "STRING",
+                        "description": "C++ 엔진 및 스폰기에서 관리할 고유 엔티티 식별 코드 (영문 소문자/스네이크 케이스, 예: 'mechanic_vargas', 'forbidden_librarian')"
+                    },
+                    "type": {
+                        "type": "STRING",
+                        "description": "엔티티의 유형 (NPC 또는 MONSTER)"
+                    },
+                    "name": {
+                        "type": "STRING",
+                        "description": "게임 내 렌더링 시 머리 위에 띄워줄 한글 이름 (예: '기계공 바르가스', '서고지기 카론')"
+                    },
+                    "symbol": {
+                        "type": "STRING",
+                        "description": "2D 뷰포트에서 이 엔티티를 나타낼 2칸 너비 문자 또는 이모지 기호 (예: '🧙', '🛡️', '💀', '🧟', '😈', ...)"
+                    },
+                    "description": {
+                        "type": "STRING",
+                        "description": "엔티티의 상세 외형 묘사 및 역할 설정. 맵 생성 AI가 주위 방 테마를 설계하는 데 영감을 줄 정보가 포함되어야 합니다. (예: '기름때 묻은 가죽 앞치마를 두르고 돋보기를 쓴 채 투덜거리는 노인 기계공')"
+                    },
+                    "purposeInQuest": {
+                        "type": "STRING",
+                        "description": "이 인물이 퀘스트에서 담당하는 서사적 역할 설명 (예: '공명 장치 설계도를 건네주며 고철 부품 5개를 수집해 오라고 요구함')"
+                    }
+                },
+                "required": [
+                    "id",
+                    "type",
+                    "name",
+                    "symbol",
+                    "description",
+                    "purposeInQuest"
+                ]
+            }
+        },
+        "mandatoryObjects": {
+            "type": "ARRAY",
+            "description": "맵 생성 엔진이 해당 층을 만들 때 방 내부에 필수로 배치해야 하는 상호작용 오브젝트 목록",
+            "items": {
+                "type": "OBJECT",
+                "properties": {
+                    "id": {
+                        "type": "STRING",
+                        "description": "C++ 엔진에서 관리할 고유 오브젝트 식별 코드 (영문 소문자/스네이크 케이스, 예: 'ancient_book_stand', 'resonance_ workbench')"
+                    },
+                    "name": {
+                        "type": "STRING",
+                        "description": "게임 내 조사 시 표시될 오브젝트 한글 이름 (예: '오래된 서적 받침대', '기계식 조립 작업대')"
+                    },
+                    "symbol": {
+                        "type": "STRING",
+                        "description": "2D 뷰포트에서 이 오브젝트를 나타낼 2칸 너비 문자 또는 이모지 기호 (예: '📖', '⚙️')"
+                    },
+                    "description": {
+                        "type": "STRING",
+                        "description": "오브젝트에 대한 묘사. (예: '책장이 누렇게 바랜 가죽 표지의 흑피 서책이 고정되어 있는 석조 받침대')"
+                    },
+                    "purposeInQuest": {
+                        "type": "STRING",
+                        "description": "오브젝트가 퀘스트에서 지니는 쓰임새 (예: '조사 시 흑피 서책을 펼쳐 고대 증오의 서문을 읽고 복수의 단서를 얻을 수 있음')"
+                    },
+                    "suggestedComponents": {
+                        "type": "ARRAY",
+                        "items": {
+                            "type": "STRING"
+                        },
+                        "description": "이 오브젝트에 부착될 추천 컴포넌트 목록 (예: ['Lockpickable', 'Smashable'])"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "symbol",
+                    "description",
+                    "purposeInQuest",
+                    "suggestedComponents"
+                ]
+            }
         }
     },
-    "required": ["guidanceText"]
+    "required": [
+        "guidanceText",
+        "narrativeObjective",
+        "targetFloor",
+        "mandatoryEntities",
+        "mandatoryObjects"
+    ]
 }

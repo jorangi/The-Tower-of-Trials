@@ -26,7 +26,7 @@ namespace TTOT::Core::Scenes
     {
         if(event == ftxui::Event::Escape)
         {
-            context.eventBus.Publish(TTOT::Core::Events::SceneChangeEvent{0});
+            context.eventBus.Publish(TTOT::Core::Events::SceneChangeEvent{context.settingReturnSceneId});
             return;
         }
         

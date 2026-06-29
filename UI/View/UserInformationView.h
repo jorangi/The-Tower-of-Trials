@@ -41,7 +41,7 @@ public:
   void SetCha(int cha) { this->cha = cha; }
   void SetDef(int def) { this->def = def; }
   void SetSpd(int spd) { this->spd = spd; }
-  void SetGender(bool gender) {}
+  void SetGender(bool gender) { this->gender = gender; }
   ftxui::Element Render() override;
 };
 } // namespace TTOT::UI::View

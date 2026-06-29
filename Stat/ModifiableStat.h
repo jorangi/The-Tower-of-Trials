@@ -7,11 +7,11 @@
 namespace TTOT::Stats {
 class ModifiableStat {
 private:
-  std::string _statName; // 스탯 이름
+  std::string _statName = nullptr; // 스탯 이름
   mutable bool isDirty =
-      false;      // 변경 여부를 위한 더티 플래그, const 함수를 위한 예외 처리
-  int _baseValue; // 기본 값
-  mutable int _finalValue; // 계산 값, const 함수를 위한 예외 처리
+      false; // 변경 여부를 위한 더티 플래그, const 함수를 위한 예외 처리
+  int _baseValue = 0;                  // 기본 값
+  mutable int _finalValue = 0;         // 계산 값, const 함수를 위한 예외 처리
   std::vector<StatModifier> _flatMods; // 단순 합 연산용
   std::vector<StatModifier> _addMods;  // 합연산용
   std::vector<StatModifier> _mulMods;  // 곱연산용

@@ -1,0 +1,206 @@
+{
+  "type": "OBJECT",
+  "properties": {
+    "currentFloor": {
+      "type": "INTEGER",
+      "description": "생성된 구역의 층수 (입력 데이터의 currentFloor와 매칭)"
+    },
+    "themeCategory": {
+      "type": "STRING",
+      "description": "생성된 구역의 대분류 테마 명칭 (입력 데이터의 themeCategory와 매칭)"
+    },
+    "mapTheme": {
+      "type": "STRING",
+      "description": "이 구역(층)의 전반적인 환경 테마 및 구역 이름. 무한의 탑 세계관 및 층 범위에 부합해야 합니다. (예: 2~9층 필드는 '습기 찬 하수 수로' 또는 '조용한 바람의 정원', 10층 대도시는 '영광의 전초기지')"
+    },
+    "roomsMeta": {
+      "type": "ARRAY",
+      "description": "각 방에 주입할 콘텐츠 메타데이터 목록",
+      "items": {
+        "type": "OBJECT",
+        "properties": {
+          "roomId": {
+            "type": "INTEGER",
+            "description": "입력 데이터에서 전달받은 방의 ID"
+          },
+          "purpose": {
+            "type": "STRING",
+            "description": "이 방의 존재 목적 또는 명칭 (예: '안전한 생존자 캠프', '벼려진 무기 보관소', '저주받은 예배당')"
+          },
+          "entities": {
+            "type": "ARRAY",
+            "description": "해당 방에 스폰할 캐릭터(몬스터, NPC 등) 목록",
+            "items": {
+              "type": "OBJECT",
+              "properties": {
+                "id": {
+                  "type": "STRING",
+                  "description": "엔티티의 고유 식별 명칭 (예: 'guard_captain_rovan', 'hungry_goblin')"
+                },
+                "type": {
+                  "type": "STRING",
+                  "description": "엔티티의 분류 유형 (MONSTER 또는 NPC)"
+                },
+                "faction": {
+                  "type": "STRING",
+                  "description": "제공된 availableFactions 목록 중 이 엔티티에 배정할 팩션 식별자"
+                },
+                "name": {
+                  "type": "STRING",
+                  "description": "게임 화면 상에서 머리 위에 띄워줄 한글 이름"
+                },
+                "symbol": {
+                  "type": "STRING",
+                  "description": "2D 뷰포트에서 이 엔티티를 나타낼 2칸 너비 문자 또는 이모지 기호 (예: '🛡️', '💀', '🧙', '🧟')"
+                },
+                "position": {
+                  "type": "OBJECT",
+                  "description": "엔티티가 배치될 2D 타일 좌표. 해당 방의 bounds 내부에 들어와야 하며 벽과 겹치면 안 됨",
+                  "properties": {
+                    "x": { "type": "INTEGER" },
+                    "y": { "type": "INTEGER" }
+                  },
+                  "required": ["x", "y"]
+                },
+                "patrolZone": {
+                  "type": "OBJECT",
+                  "description": "이 엔티티가 순찰을 돌며 무작위 배회할 수 있는 영역 경계 범위",
+                  "properties": {
+                    "minX": { "type": "INTEGER" },
+                    "minY": { "type": "INTEGER" },
+                    "maxX": { "type": "INTEGER" },
+                    "maxY": { "type": "INTEGER" }
+                  },
+                  "required": ["minX", "minY", "maxX", "maxY"]
+                },
+                "aiTriggers": {
+                  "type": "ARRAY",
+                  "description": "센서 컴포넌트가 특정 조건을 감지했을 때 트리거할 반응 동작들",
+                  "items": {
+                    "type": "OBJECT",
+                    "properties": {
+                      "onEvent": {
+                        "type": "STRING",
+                        "description": "이벤트 타입 (예: DETECT_FACTION, LOW_HP, ON_ATTACKED)"
+                      },
+                      "targetFaction": {
+                        "type": "STRING",
+                        "description": "이벤트를 발생시킬 감지 대상 팩션 ID"
+                      },
+                      "executeAction": {
+                        "type": "STRING",
+                        "description": "이벤트 감지 시 의사결정 모듈이 수행할 행동 키 (예: ATTACK, FLEE, HEAL)"
+                      }
+                    },
+                    "required": ["onEvent", "targetFaction", "executeAction"]
+                  }
+                }
+              },
+              "required": ["id", "type", "faction", "name", "symbol", "position", "patrolZone", "aiTriggers"]
+            }
+          },
+          "objects": {
+            "type": "ARRAY",
+            "description": "해당 방에 배치할 정적/상호작용 오브젝트(가구, 보물상자, 문 등) 목록",
+            "items": {
+              "type": "OBJECT",
+              "properties": {
+                "id": {
+                  "type": "STRING",
+                  "description": "오브젝트 고유 식별 명칭 (예: 'old_wooden_chest', 'locked_stone_gate')"
+                },
+                "position": {
+                  "type": "OBJECT",
+                  "description": "오브젝트 배치 좌표. 해당 방의 bounds 내부에 들어와야 함",
+                  "properties": {
+                    "x": { "type": "INTEGER" },
+                    "y": { "type": "INTEGER" }
+                  },
+                  "required": ["x", "y"]
+                },
+                "attachComponents": {
+                  "type": "ARRAY",
+                  "items": { "type": "STRING" },
+                  "description": "제공된 supportedComponents 목록 중 이 오브젝트가 갖게 될 C++ 컴포넌트 클래스 명칭 배열"
+                },
+                "interactions": {
+                  "type": "ARRAY",
+                  "description": "이 오브젝트와 상호작용할 수 있는 메뉴 및 조건과 결과쌍 목록",
+                  "items": {
+                    "type": "OBJECT",
+                    "properties": {
+                      "verb": {
+                        "type": "STRING",
+                        "description": "상호작용 동사 키 (예: LOCKPICK, SMASH, OPEN, EXAMINE)"
+                      },
+                      "requiredKeyOrSkill": {
+                        "type": "STRING",
+                        "description": "필요한 아이템 키나 스킬 식별자 (조건이 없다면 'None' 입력)"
+                      },
+                      "successOutcomes": {
+                        "type": "ARRAY",
+                        "description": "상호작용 성공 판정 시 엔진에서 큐잉해 순차 실행할 명령어 목록",
+                        "items": {
+                          "type": "OBJECT",
+                          "properties": {
+                            "type": {
+                              "type": "STRING",
+                              "description": "possibleOutcomes 중 하나 선택"
+                            },
+                            "targetId": {
+                              "type": "STRING",
+                              "description": "생성하거나 파괴할 대상 리소스 ID (필요치 않을 시 'None')"
+                            },
+                            "amount": {
+                              "type": "INTEGER",
+                              "description": "생성 또는 변화될 개수/수량"
+                            }
+                          },
+                          "required": ["type", "targetId", "amount"]
+                        }
+                      },
+                      "failOutcomes": {
+                        "type": "ARRAY",
+                        "description": "상호작용 실패 판정 시 엔진에서 큐잉해 순차 실행할 명령어 목록",
+                        "items": {
+                          "type": "OBJECT",
+                          "properties": {
+                            "type": {
+                              "type": "STRING",
+                              "description": "possibleOutcomes 중 하나 선택"
+                            },
+                            "target": {
+                              "type": "STRING",
+                              "description": "수행 타겟 대상 (예: PLAYER, SELF)"
+                            },
+                            "stat": {
+                              "type": "STRING",
+                              "description": "변조할 대상 스탯 식별자 (예: HP, MP)"
+                            },
+                            "value": {
+                              "type": "INTEGER",
+                              "description": "수치 가감 값 (예: HP를 10 깎으려면 -10)"
+                            },
+                            "targetId": {
+                              "type": "STRING",
+                              "description": "발동할 이벤트/퀘스트 ID 등 (필요 없을 시 'None')"
+                            }
+                          },
+                          "required": ["type", "target", "stat", "value", "targetId"]
+                        }
+                      }
+                    },
+                    "required": ["verb", "requiredKeyOrSkill", "successOutcomes", "failOutcomes"]
+                  }
+                }
+              },
+              "required": ["id", "position", "attachComponents", "interactions"]
+            }
+          }
+        },
+        "required": ["roomId", "purpose", "entities", "objects"]
+      }
+    }
+  },
+  "required": ["currentFloor", "themeCategory", "mapTheme", "roomsMeta"]
+}

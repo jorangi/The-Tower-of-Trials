@@ -1,0 +1,38 @@
+{
+  "type": "OBJECT",
+  "properties": {
+    "npcReply": {
+      "type": "STRING",
+      "description": "NPC의 성격, 말투, 현재 상황, 그리고 플레이어의 입력 대사에 맞춘 자연스럽고 몰입감 있는 TRPG 스타일의 답변 대사."
+    },
+    "npcEmotion": {
+      "type": "STRING",
+      "description": "답변 시 NPC의 감정 상태 (예: 'NORMAL', 'ANGRY', 'HAPPY', 'SUSPICIOUS', 'FEAR')"
+    },
+    "relationChange": {
+      "type": "INTEGER",
+      "description": "플레이어의 말에 따른 NPC와의 친밀도/호감도 변화량 (-10에서 +10 사이의 정수. 플레이어가 무례하거나 협박하면 음수, 예의바르거나 도와주면 양수)"
+    },
+    "triggeredCommand": {
+      "type": "STRING",
+      "description": "대화 결과로 C++ 엔진이 즉시 수행해야 할 특수 명령 키. 해당하는 동작이 없다면 'NONE'을 출력해야 합니다. (가능한 값: 'START_QUEST', 'COMPLETE_QUEST', 'GIVE_ITEM', 'SPAWN_MONSTERS', 'START_COMBAT', 'NONE')"
+    },
+    "commandParams": {
+      "type": "OBJECT",
+      "description": "triggeredCommand에 필요한 세부 매개변수 데이터",
+      "properties": {
+        "targetId": {
+          "type": "STRING",
+          "description": "아이템 ID, 몬스터 ID, 또는 퀘스트 ID (예: 'slime', 'forbidden_key', 'qst_library_info'). 필요 없을 시 'NONE'"
+        },
+        "amount": {
+          "type": "INTEGER",
+          "description": "아이템 개수 또는 처치해야 할 몬스터 마릿수 (필요 없을 시 0)"
+        },
+        "description": "triggeredCommand 실행에 따른 부가 설명 (기록용). 필요 없을 시 빈 문자열"
+      },
+      "required": ["targetId", "amount", "description"]
+    }
+  },
+  "required": ["npcReply", "npcEmotion", "relationChange", "triggeredCommand", "commandParams"]
+}

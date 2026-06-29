@@ -1,0 +1,90 @@
+{
+  "type": "OBJECT",
+  "properties": {
+    "mapSize": {
+      "type": "OBJECT",
+      "description": "맵의 전체 해상도 정보 (좌표 제한 및 월드 경계 판단용)",
+      "properties": {
+        "width": { "type": "INTEGER", "description": "맵의 가로 타일 개수" },
+        "height": { "type": "INTEGER", "description": "맵의 세로 타일 개수" }
+      },
+      "required": ["width", "height"]
+    },
+    "dynamicEngineSpecs": {
+      "type": "OBJECT",
+      "description": "C++ 게임 엔진이 현재 지원하는 컴포넌트, 팩션 및 상호작용 명령 목록",
+      "properties": {
+        "supportedComponents": {
+          "type": "ARRAY",
+          "items": { "type": "STRING" },
+          "description": "오브젝트에 부여 가능한 컴포넌트 클래스 명칭 목록"
+        },
+        "availableFactions": {
+          "type": "ARRAY",
+          "items": { "type": "STRING" },
+          "description": "엔진에 미리 정의된 세력/팩션 ID 목록"
+        },
+        "possibleOutcomes": {
+          "type": "ARRAY",
+          "items": { "type": "STRING" },
+          "description": "상호작용 성공/실패 시 실행 가능한 엔진 명령어(Command) 타입 목록"
+        }
+      },
+      "required": ["supportedComponents", "availableFactions", "possibleOutcomes"]
+    },
+    "rooms": {
+      "type": "ARRAY",
+      "items": {
+        "type": "OBJECT",
+        "properties": {
+          "id": { "type": "INTEGER", "description": "방의 고유 식별 번호 (0부터 시작)" },
+          "bounds": {
+            "type": "OBJECT",
+            "description": "방의 2D 타일 좌표 영역 정보",
+            "properties": {
+              "x": { "type": "INTEGER", "description": "방의 시작 X 타일 좌표 (좌측 상단)" },
+              "y": { "type": "INTEGER", "description": "방의 시작 Y 타일 좌표 (좌측 상단)" },
+              "width": { "type": "INTEGER", "description": "방의 가로 타일 개수" },
+              "height": { "type": "INTEGER", "description": "방의 세로 타일 개수" }
+            },
+            "required": ["x", "y", "width", "height"]
+          }
+        },
+        "required": ["id", "bounds"]
+      },
+      "description": "BSP 알고리즘으로 분할 및 생성 완료된 물리 방 목록"
+    },
+    "corridors": {
+      "type": "ARRAY",
+      "items": {
+        "type": "OBJECT",
+        "properties": {
+          "id": { "type": "INTEGER", "description": "복도 고유 ID (100번대 이상)" },
+          "fromRoom": { "type": "INTEGER", "description": "연결된 출발지 방 ID" },
+          "toRoom": { "type": "INTEGER", "description": "연결된 목적지 방 ID" },
+          "length": { "type": "INTEGER", "description": "복도의 총 맨해튼 타일 길이" },
+          "midPoint": {
+            "type": "OBJECT",
+            "description": "복도의 정중앙 또는 꺾임 지점 좌표 (함정 및 돌발 이벤트 스폰 가능 영역)",
+            "properties": {
+              "x": { "type": "INTEGER", "description": "복도 중심점 X 타일 좌표" },
+              "y": { "type": "INTEGER", "description": "복도 중심점 Y 타일 좌표" }
+            },
+            "required": ["x", "y"]
+          }
+        },
+        "required": ["id", "fromRoom", "toRoom", "length", "midPoint"]
+      },
+      "description": "각 방을 잇는 통로 복도 목록"
+    },
+    "currentFloor": {
+      "type": "INTEGER",
+      "description": "현재 생성 중인 탑의 층수 (예: 1, 5, 10 등)"
+    },
+    "themeCategory": {
+      "type": "STRING",
+      "description": "현재 층수가 속한 전체 대분류 테마 명칭 (예: '안전지대', '하수 수로', '바람의 정원', '대도시')"
+    }
+  },
+  "required": ["mapSize", "dynamicEngineSpecs", "rooms", "corridors", "currentFloor", "themeCategory"]
+}

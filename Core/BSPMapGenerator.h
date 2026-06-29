@@ -1,4 +1,6 @@
+#pragma once
 #include <cstdint>
+#include <ftxui/dom/elements.hpp>
 #include <memory>
 #include <random>
 #include <vector>
@@ -25,8 +27,8 @@ private:
     bool hasRoom = false;
   };
   std::unique_ptr<BSPNode> root = nullptr;
-  const int MIN_SIZE = 10;
-  const int MAX_DEPTH = 10;
+  const int MIN_SIZE = 15;
+  const int MAX_DEPTH = 6;
   std::mt19937 rng;
 
   void Split(BSPNode *node, int currentDepth);
@@ -56,7 +58,8 @@ public:
                   std::uint32_t height);
   ~BSPMapGenerator();
   void Generate();
-  void Visualize() const;
+  ftxui::Element Render() const;
+  std::pair<int, int> GetFirstRoomCenter() const;
 
   const std::vector<int> &GetBSP() const { return bsp; }
   std::uint32_t GetWidth() const { return width; }

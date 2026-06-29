@@ -5,9 +5,12 @@
 #include "Component/ManaComponent.h"
 #include "Component/MoneyComponent.h"
 #include "Component/StatComponent.h"
+#include "Core/Event/ChangeHealthEvent.h"
+#include "Core/Event/ChangeManaEvent.h"
 #include "Core/Event/GameLoopEvent.h"
 #include "Core/Event/LoadCompleteEvent.h"
 #include "Core/Event/LoadRequestEvent.h"
+#include "Core/Event/SaveCompleteEvent.h"
 #include "Core/Event/SaveRequestEvent.h"
 #include "Core/Event/SceneChangeEvent.h"
 #include "Core/Event/ScreenRefreshEvent.h"
@@ -18,6 +21,7 @@
 #include "Core/SaveManager.h"
 #include "Core/Scene/FieldScene.h"
 #include "Core/Scene/IntroScene.h"
+#include "Core/Scene/PauseScene.h"
 #include "Core/Scene/SaveFileLoadScene.h"
 #include "Core/Scene/SettingScene.h"
 #include "Core/Scene/TitleScene.h"
@@ -25,8 +29,6 @@
 #include "Event/CreatingEntityEvent.h"
 #include "Event/InjectPurposeEvent.h"
 #include "Event/PlayerGetEvent.h"
-#include "Core/Event/ChangeHealthEvent.h"
-#include "Core/Event/ChangeManaEvent.h"
 #include <chrono>
 #include <ctime>
 #include <ftxui/component/component.hpp>
@@ -94,8 +96,12 @@ GameManager::GameManager()
       [this](const TTOT::Core::Events::CreatingEntityEvent &event) {
         uint32_t entityId = nextEntityId;
         if (event.entityType == TTOT::Core::Events::EntityType::Player) {
+          this->context->playerBaseInfo = {event.dto.GetGender(),
+                                           event.dto.GetName(),
+                                           event.dto.GetClassInfo()->GetName(),
+                                           event.dto.GetClassInfo()->GetDesc()};
           this->player = this->playerFactory->CreatePlayer(
-              entityId, std::move(event.dto), false);
+              entityId, std::move(event.dto), event.dto.GetGender());
           RegistryEntity(this->player.get());
         } else if (event.entityType ==
                    TTOT::Core::Events::EntityType::Monster) {
@@ -184,22 +190,41 @@ GameManager::GameManager()
       });
   eventBus.Subscribe<TTOT::Core::Events::SaveRequestEvent>(
       [this](const TTOT::Core::Events::SaveRequestEvent &event) mutable {
-        TTOT::Core::MasterSaveData saveData;
-        nlohmann::json j;
-        this->player->Serialize(j);
-        saveData.slotIndex = event.slotIndex;
-        saveData.playerData = j;
-        auto now = std::chrono::system_clock::now();
-        auto now_time = std::chrono::system_clock::to_time_t(now);
-        std::tm localTm;
-        localtime_s(&localTm, &now_time);
-        std::stringstream ss;
-        ss << std::put_time(&localTm, "%Y-%m-%d %H:%M:%S");
-        saveData.saveTime = ss.str();
-        saveData.currentFloor = 1;
+        try {
+          if (this->player == nullptr) {
+            std::cerr << "[GameManager] 세이브 오류: player 객체가 null입니다."
+                      << std::endl;
+            this->context->eventBus.Publish(
+                TTOT::Core::Events::SaveCompletevent{
+                    event.slotIndex, false,
+                    "플레이어 정보가 존재하지 않습니다."});
+            return;
+          }
+          TTOT::Core::MasterSaveData saveData;
+          nlohmann::json j;
+          this->player->Serialize(j);
+          saveData.slotIndex = event.slotIndex;
+          saveData.playerData = j;
+          auto now = std::chrono::system_clock::now();
+          auto now_time = std::chrono::system_clock::to_time_t(now);
+          std::tm localTm;
+          localtime_s(&localTm, &now_time);
+          std::stringstream ss;
+          ss << std::put_time(&localTm, "%Y-%m-%d %H:%M:%S");
+          saveData.saveTime = ss.str();
+          saveData.currentFloor = event.currentFloor;
+          saveData.mapSeed = event.mapSeed;
+          saveData.playerX = event.playerX;
+          saveData.playerY = event.playerY;
 
-        this->saveManager->OnSaveRequest(event.slotIndex, saveData,
-                                         *(this->context));
+          this->saveManager->OnSaveRequest(event.slotIndex, saveData,
+                                           *(this->context));
+        } catch (const std::exception &e) {
+          std::cerr << "[GameManager] 세이브 예외 발생: " << e.what()
+                    << std::endl;
+          this->context->eventBus.Publish(TTOT::Core::Events::SaveCompletevent{
+              event.slotIndex, false, e.what()});
+        }
       });
   eventBus.Subscribe<TTOT::Core::Events::LoadRequestEvent>(
       [this](const TTOT::Core::Events::LoadRequestEvent &event) mutable {
@@ -239,12 +264,42 @@ GameManager::GameManager()
           if (nextEntityId <= this->player->GetId()) {
             nextEntityId = this->player->GetId() + 1;
           }
+
+          // Synchronize character sheet data back to shared context
+          this->context->playerBaseInfo.name = this->player->GetName();
+          this->context->playerBaseInfo.gender = this->player->GetGender();
+          if (auto *classComp =
+                  this->player
+                      ->GetComponent<TTOT::Components::ClassComponent>()) {
+            if (classComp->GetClassInfo()) {
+              this->context->playerBaseInfo.className =
+                  classComp->GetClassInfo()->GetName();
+              this->context->playerBaseInfo.classDesc =
+                  classComp->GetClassInfo()->GetDesc();
+            }
+          }
+          this->context->playerBaseInfo.guidance =
+              event.saveData.playerData.value("guidance", "");
+          this->context->playerBaseInfo.questDataJson =
+              event.saveData.playerData.value("questDataJson", "");
+          this->context->playerBaseInfo.AdventurePurpose =
+              event.saveData.playerData.value("purpose", "");
+
+          this->context->playerBaseInfo.currentFloor =
+              event.saveData.currentFloor;
+          this->context->playerBaseInfo.mapSeed = event.saveData.mapSeed;
+          this->context->playerBaseInfo.playerX = event.saveData.playerX;
+          this->context->playerBaseInfo.playerY = event.saveData.playerY;
         }
       });
   eventBus.Subscribe<TTOT::Core::Events::InjectPurposeEvent>(
       [this](const TTOT::Core::Events::InjectPurposeEvent &event) {
         this->player->SetPurpose(event.purpose);
         this->player->SetGuidance(event.guidance);
+        this->player->SetQuestDataJson(event.questDataJson);
+        this->context->playerBaseInfo.AdventurePurpose = event.purpose;
+        this->context->playerBaseInfo.guidance = event.guidance;
+        this->context->playerBaseInfo.questDataJson = event.questDataJson;
       });
 }
 
@@ -275,6 +330,7 @@ void GameManager::Run() {
   sceneManager->RegisterScene<TTOT::Core::Scenes::IntroScene>(2);
   sceneManager->RegisterScene<TTOT::Core::Scenes::FieldScene>(3);
   sceneManager->RegisterScene<TTOT::Core::Scenes::SaveFileLoadScene>(4);
+  sceneManager->RegisterScene<TTOT::Core::Scenes::PauseScene>(5);
   this->currentScene = sceneManager->LoadScene(0, *context);
   context->eventBus.Publish(TTOT::Core::Events::VolumeChangeEvent{
       TTOT::Core::Events::VolumeType::Master, 0});
@@ -295,10 +351,6 @@ void GameManager::Run() {
       this->currentScene =
           sceneManager->LoadScene(this->nextSceneId, *(this->context));
       this->nextSceneId = -1;
-
-      if (this->currentScene != nullptr) {
-        this->currentScene->OnEnter();
-      }
     }
     gameState = TTOT::Core::GameState::GameLoop;
     if (this->currentScene != nullptr) {

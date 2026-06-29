@@ -1,5 +1,7 @@
 #include "Core/BSPMapGenerator.h"
 #include <cassert>
+#include <ftxui/dom/elements.hpp>
+#include <ftxui/screen/screen.hpp>
 #include <iostream>
 #include <windows.h>
 
@@ -33,9 +35,8 @@ void Test_BSPMapGenerator_GenerationAndVisual() {
   std::uint32_t seed = 30131209;
   std::uint32_t width = 100;
   std::uint32_t height = 100;
-  std::cin >> seed;
-  std::cin >> width;
-  std::cin >> height;
+  cout << "Enter seed, width, height (e.g. 30131209 80 40): ";
+  std::cin >> seed >> width >> height;
 
   BSPMapGenerator generator(seed, width, height);
   generator.Generate();
@@ -76,16 +77,20 @@ void Test_BSPMapGenerator_GenerationAndVisual() {
   }
 
   cout << "\n============================================ " << endl;
-  cout << "       Visualizing BSP Map (80x30)           " << endl;
+  cout << "       Visualizing BSP Map (FTXUI Render)    " << endl;
   cout << "============================================ " << endl;
   cout << " Legend: " << endl;
-  cout << "   '#' : Wall" << endl;
-  cout << "   '.' : Room / Corridor Floor" << endl;
-  cout << "   ' ' : Cellular Automata Floor (Open Space)" << endl;
-  cout << "   '/' : BSP Partition Border (overlaid on walls)" << endl;
+  cout << "   █, ▀, ▄ : Walls (GrayDark)" << endl;
+  cout << "   (Space) : Rooms / Corridors / Floors" << endl;
   cout << "--------------------------------------------" << endl;
 
-  generator.Visualize();
+  auto element = generator.Render();
+  auto screen =
+      ftxui::Screen::Create(ftxui::Dimension::Fixed(width),
+                            ftxui::Dimension::Fixed((height + 1) / 2));
+  ftxui::Render(screen, element);
+  screen.Print();
+  std::cout << std::endl;
 
   cout << "============================================\n" << endl;
 }

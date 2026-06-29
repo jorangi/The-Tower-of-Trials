@@ -9,4 +9,5 @@ namespace TTOT::Utilities::ScreenUtility
     void PrintLine(const std::string& text);
     void HideCursor();
     void ShowCursor();
+    void Resize(int cols, int rows);
 }

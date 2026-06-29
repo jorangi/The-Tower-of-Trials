@@ -6,5 +6,6 @@ namespace TTOT::Core::Events
     {
         std::string purpose;
         std::string guidance;
+        std::string questDataJson;
     };
 }

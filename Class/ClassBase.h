@@ -4,6 +4,7 @@
 #include "Utility/Action.h"
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
+#include "Datas/ClassDTO.h"
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -62,6 +63,59 @@ private:
   TTOT::Utilities::Action<std::vector<uint32_t>> OnSkillsChanged;
 
 public:
+  ClassBase() = default;
+  ClassBase(const TTOT::Datas::ClassDTO& dto) {
+    classId = dto.GetClassId();
+    className = dto.GetClassName();
+    classDesc = dto.GetClassDesc();
+    hp = dto.GetHp();
+    mp = dto.GetMp();
+    str = dto.GetStr();
+    dex = dto.GetDex();
+    _int = dto.GetInt();
+    wis = dto.GetWis();
+    cha = dto.GetCha();
+    def = dto.GetDef();
+    spd = dto.GetSpd();
+    hpMultiplier = dto.GetHpMultiplier();
+    mpMultiplier = dto.GetMpMultiplier();
+    strMultiplier = dto.GetStrMultiplier();
+    dexMultiplier = dto.GetDexMultiplier();
+    intMultiplier = dto.GetIntMultiplier();
+    wisMultiplier = dto.GetWisMultiplier();
+    chaMultiplier = dto.GetChaMultiplier();
+    defMultiplier = dto.GetDefMultiplier();
+    spdMultiplier = dto.GetSpdMultiplier();
+    skills = dto.GetSkills();
+  }
+
+  TTOT::Datas::ClassDTO ToDTO() const {
+    return TTOT::Datas::ClassDTOBuilder()
+        .ClassId(classId)
+        .ClassName(className)
+        .ClassDesc(classDesc)
+        .Hp(hp)
+        .Mp(mp)
+        .Str(str)
+        .Dex(dex)
+        .Int(_int)
+        .Wis(wis)
+        .Cha(cha)
+        .Def(def)
+        .Spd(spd)
+        .HpMultiplier(hpMultiplier)
+        .MpMultiplier(mpMultiplier)
+        .StrMultiplier(strMultiplier)
+        .DexMultiplier(dexMultiplier)
+        .IntMultiplier(intMultiplier)
+        .WisMultiplier(wisMultiplier)
+        .ChaMultiplier(chaMultiplier)
+        .DefMultiplier(defMultiplier)
+        .SpdMultiplier(spdMultiplier)
+        .Skills(skills)
+        .Build();
+  }
+
   virtual std::string ToString() const override {
     return className + " : " + classDesc;
   }

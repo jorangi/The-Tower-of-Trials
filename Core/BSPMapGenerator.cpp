@@ -1,6 +1,6 @@
 #include "Core/BSPMapGenerator.h"
 #include <algorithm>
-#include <iostream>
+#include <ftxui/dom/elements.hpp>
 #include <memory>
 #include <random>
 
@@ -205,9 +205,11 @@ void BSPMapGenerator::FillBSPWithBorders(const BSPNode *node) {
   }
 }
 
-void BSPMapGenerator::Visualize() const {
-  std::string last_color = "";
+ftxui::Element BSPMapGenerator::Render() const {
+  using namespace ftxui;
+  std::vector<Element> rows;
   for (std::uint32_t y = 0; y < height; y += 2) {
+    std::vector<Element> cells;
     for (std::uint32_t x = 0; x < width; ++x) {
       int cell_top = bsp[y * width + x];
       int cell_bottom = (y + 1 < height) ? bsp[(y + 1) * width + x] : 0;
@@ -215,33 +217,19 @@ void BSPMapGenerator::Visualize() const {
       bool top_is_wall = (cell_top == 0 || cell_top == 3);
       bool bottom_is_wall = (cell_bottom == 0 || cell_bottom == 3);
 
-      if (top_is_wall || bottom_is_wall) {
-        if (last_color != "\033[90m") {
-          std::cout << "\033[90m";
-          last_color = "\033[90m";
-        }
-
-        if (top_is_wall && bottom_is_wall) {
-          std::cout << "█";
-        } else if (top_is_wall) {
-          std::cout << "▀";
-        } else {
-          std::cout << "▄";
-        }
+      if (top_is_wall && bottom_is_wall) {
+        cells.push_back(text("█") | color(Color::GrayDark));
+      } else if (top_is_wall) {
+        cells.push_back(text("▀") | color(Color::GrayDark));
+      } else if (bottom_is_wall) {
+        cells.push_back(text("▄") | color(Color::GrayDark));
       } else {
-        if (!last_color.empty()) {
-          std::cout << "\033[0m";
-          last_color = "";
-        }
-        std::cout << " ";
+        cells.push_back(text(" "));
       }
     }
-    if (!last_color.empty()) {
-      std::cout << "\033[0m";
-      last_color = "";
-    }
-    std::cout << "\n";
+    rows.push_back(hbox(std::move(cells)));
   }
+  return vbox(std::move(rows));
 }
 
 void BSPMapGenerator::CollectLeafRooms(BSPNode *node,
@@ -324,6 +312,28 @@ void BSPMapGenerator::ConnectAdjacentRooms() {
       }
     }
   }
+}
+
+std::pair<int, int> BSPMapGenerator::GetFirstRoomCenter() const {
+  struct Helper {
+    static const BSPNode* findFirstRoom(const BSPNode* node) {
+      if (!node) return nullptr;
+      if (!node->left && !node->right) {
+        if (node->hasRoom) return node;
+        return nullptr;
+      }
+      const BSPNode* leftRes = findFirstRoom(node->left.get());
+      if (leftRes) return leftRes;
+      return findFirstRoom(node->right.get());
+    }
+  };
+  const BSPNode* first = Helper::findFirstRoom(root.get());
+  if (first) {
+    int cx = first->room.x + first->room.width / 2;
+    int cy = first->room.y + first->room.height / 2;
+    return {cx, cy};
+  }
+  return {static_cast<int>(width) / 2, static_cast<int>(height) / 2};
 }
 
 } // namespace TTOT::Core

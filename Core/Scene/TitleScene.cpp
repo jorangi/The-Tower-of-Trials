@@ -40,6 +40,7 @@ void TTOT::Core::Scenes::TitleScene::HandleInput(const ftxui::Event &event) {
   } else if (event == ftxui::Event::Character('3') ||
              (event == ftxui::Event::Return && selectedIndex == 2)) {
     outputText = "설정 선택됨";
+    context.settingReturnSceneId = 0;
     context.eventBus.Publish(TTOT::Core::Events::SceneChangeEvent{1});
     return;
   } else if (event == ftxui::Event::Character('4') ||

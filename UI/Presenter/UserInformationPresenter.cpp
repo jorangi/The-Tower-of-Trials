@@ -1,6 +1,7 @@
 #include "UI/Presenter/UserInformationPresenter.h"
 #include "Component/ClassComponent.h"
 #include "Component/HealthComponent.h"
+#include "Component/ManaComponent.h"
 #include "Component/MoneyComponent.h"
 #include "Component/StatComponent.h"
 

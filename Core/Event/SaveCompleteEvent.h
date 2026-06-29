@@ -6,6 +6,6 @@ namespace TTOT::Core::Events
     {
         int slotIndex;
         bool success;
-        const std::string& errorMessage;
+        std::string errorMessage;
     };
 }

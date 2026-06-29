@@ -1,29 +1,31 @@
-#include "Core/Scene/IntroScene.h"
 #include "Core/Scene/IntroSceneState/ProcessingWriteClassState.h"
 #include "Core/Event/ScreenRefreshEvent.h"
+#include "Core/Scene/IntroScene.h"
+#include "Datas/ClassDTO.h"
 #include "Utility/FormatString.h"
+#include "Utility/PathHelper.h"
 #include <fstream>
+
 
 using namespace ftxui;
 using namespace TTOT::Core::Scenes;
 using namespace TTOT::Core::Scenes::IntroSceneState;
 
-namespace TTOT::Core::Scenes::IntroSceneState
-{
-    void ProcessingWriteClassState::OnEnter(IntroScene& scene)
-    {
-        lastUpdateTime = std::chrono::steady_clock::now();
-        scene.introContext.geminiFuture = std::async(std::launch::async, [this, &scene]()
-        {
-            std::ifstream schemaFile("Assets/Schema/ClassSchema.json");
-            nlohmann::json schemaJson;
-            if(!schemaFile.is_open())
-            {
-                return std::string("Error: 스키마 파일을 찾을 수 없습니다. 경로를 확인해주세요.");
-            }
-            schemaFile >> schemaJson;
-            schemaFile.close();
-            std::string _prompt = R"(
+namespace TTOT::Core::Scenes::IntroSceneState {
+void ProcessingWriteClassState::OnEnter(IntroScene &scene) {
+  lastUpdateTime = std::chrono::steady_clock::now();
+  scene.introContext.geminiFuture = std::async(std::launch::async, [this,
+                                                                    &scene]() {
+    std::ifstream schemaFile(
+        TTOT::Utilities::GetAssetPath("Assets/Schema/ClassSchema.json"));
+    nlohmann::json schemaJson;
+    if (!schemaFile.is_open()) {
+      return std::string(
+          "Error: 스키마 파일을 찾을 수 없습니다. 경로를 확인해주세요.");
+    }
+    schemaFile >> schemaJson;
+    schemaFile.close();
+    std::string _prompt = R"(
                 본 게임은 로그(Rogue)와 같은 텍스트 기반 탑뷰 게임이며, 전투는 턴제로 이루어집니다.
                 포켓몬스터나 고전 RPG처럼 서로 마주 본 상태에서 기술을 주고받는 턴제 전투를 치르지만, 당신의 설명에서는 이러한 '메타적인 시스템'이 드러나서는 안 됩니다.
                 당신은 텍스트 RPG '시련의 탑(The Tower of Trials)'의 초입에서 모험가를 심사하고 인도하는 탑의 신비로운 의지(Voice of the Tower)이자 탑의 여신입니다.
@@ -43,7 +45,7 @@ namespace TTOT::Core::Scenes::IntroSceneState
                 [오버파워(OP) 제약 및 밸런스 규칙]
                 1. 모든 초기 능력치(hp, mp, str, dex, int, wis, cha, def, spd)의 총합은 '20 이하의 자연수'여야 합니다. (각 능력치 개별 최대 10 이하)
                 2. 사용자가 세계관을 무너뜨리는 무적의 사기 캐릭터(OP)를 요구할 경우, 요구를 수용하되 그에 상응하는 '치명적인 서사적 패널티'를 부여하여 밸런스를 강제로 맞추세요.
-                    - (예: "과거엔 신을 베었으나 현재는 심연의 저주로 육신이 부서져 내린 상태", "압도적인 파괴력을 가졌으나 생명력을 갉아먹는 고통을 감수해야 함" 등)
+                - (예: "과거엔 신을 베었으나 현재는 심연의 저주로 육신이 부서져 내린 상태", "압도적인 파괴력을 가졌으나 생명력을 갉아먹는 고통을 감수해야 함" 등)
                 --
                 사용자의 이름은: {{name}} 입니다.
                 사용자의 성별은: {{gender}} 입니다.
@@ -51,89 +53,77 @@ namespace TTOT::Core::Scenes::IntroSceneState
                 중요한 정보가 될 수 있습니다.
                 이름의 경우 상대적으로 중요하지 않을 수 있습니다.
             )";
-            _prompt = TTOT::Utilities::FormatString(_prompt, "{{name}}", scene.introContext.userName);
-            _prompt = TTOT::Utilities::FormatString(_prompt, "{{gender}}", scene.introContext.userGender ? "여자" : "남자");
+    _prompt = TTOT::Utilities::FormatString(_prompt, "{{name}}",
+                                            scene.introContext.userName);
+    _prompt = TTOT::Utilities::FormatString(
+        _prompt, "{{gender}}", scene.introContext.userGender ? "여자" : "남자");
 
-            nlohmann::json body=
-            {
-                {"contents", nlohmann::json::array({
-                    {
-                        {"parts", nlohmann::json::array({
-                            {{"text", std::string("사용자가 요청하는 커스텀 클래스의 정보: ") + scene.introContext.customClass}}
-                        })}
-                    }
-                })},
-                {"systemInstruction", {
-                    {"parts", nlohmann::json::array({
-                        {{"text", _prompt}}
-                    })}
-                }},
-                {"generationConfig", {
-                    {"responseMimeType", "application/json"},
-                    {"responseSchema", schemaJson},
-                }}
-            };
-            std::string responseStr = scene.context.gemini.Request(body);
-            std::ofstream debugFile("gemini_response_debug.json");
-            if (debugFile.is_open())
-            {
-                debugFile << responseStr;
-                debugFile.close();
-            }
-            return responseStr;
-        });
-        std::thread([this, &scene]()
-        {
-            while(scene.introStep == IntroStep::ProcessingWriteClass)
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                scene.context.eventBus.Publish(TTOT::Core::Events::ScreenRefreshEvent{});
-            }
-        }).detach();
+    nlohmann::json body = {
+        {"contents",
+         nlohmann::json::array(
+             {{{"parts",
+                nlohmann::json::array(
+                    {{{"text",
+                       std::string("사용자가 요청하는 커스텀 클래스의 정보: ") +
+                           scene.introContext.customClass}}})}}})},
+        {"systemInstruction",
+         {{"parts", nlohmann::json::array({{{"text", _prompt}}})}}},
+        {"generationConfig",
+         {
+             {"responseMimeType", "application/json"},
+             {"responseSchema", schemaJson},
+         }}};
+    std::string responseStr = scene.context.gemini.Request(body);
+    std::ofstream debugFile("gemini_response_debug.json");
+    if (debugFile.is_open()) {
+      debugFile << responseStr;
+      debugFile.close();
     }
-    void ProcessingWriteClassState::OnExit(IntroScene& scene)
-    {
-
+    return responseStr;
+  });
+  std::thread([this, &scene]() {
+    while (scene.introStep == IntroStep::ProcessingWriteClass) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      scene.context.eventBus.Publish(TTOT::Core::Events::ScreenRefreshEvent{});
     }
-    void ProcessingWriteClassState::Update(IntroScene& scene)
-    {
-        auto now = std::chrono::steady_clock::now();
-        double elapsedTime = std::chrono::duration<double>(now - lastUpdateTime).count();
-        if(elapsedTime >= 0.1)
-        {
-            lastUpdateTime = now;
-            this->spinnerIndex = (this->spinnerIndex + 1) % scene.introContext.spinner.size();
-            scene.context.eventBus.Publish(TTOT::Core::Events::ScreenRefreshEvent{});
-        }
-        if(scene.introContext.geminiFuture.valid() && 
-            scene.introContext.geminiFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-        {
-            std::string result = scene.introContext.geminiFuture.get();
-            try
-            {
-                auto parsedJson = nlohmann::json::parse(result);
-                scene.introContext.classInfo = std::make_unique<TTOT::Class::ClassBase>(parsedJson.get<TTOT::Class::ClassBase>());
-                scene.introContext.customClass = scene.introContext.classInfo->GetName();
-                scene.introContext.customClassDesc = scene.introContext.classInfo->GetDesc();
-            }
-            catch(const std::exception& e)
-            {
-                scene.introContext.customClass = "⚠️ 클래스 데이터 파싱 실패";
-                scene.introContext.customClassDesc = "원본 응답:\n" + result + "\n\n오류 내용:\n" + e.what();
-            }
-            scene.ChangeState(IntroStep::ConfirmClass);
-            scene.context.eventBus.Publish(TTOT::Core::Events::ScreenRefreshEvent{});
-        }
-    }
-    void ProcessingWriteClassState::HandleInput(IntroScene& scene, const Event& event)
-    {
-
-    }
-    Element ProcessingWriteClassState::Render(IntroScene& scene)
-    {
-        return hbox({
-                    text("⚙ 설정에 맞는 사용자 정의 클래스를 생성 중입니다..."), 
-                    text(scene.introContext.spinner[this->spinnerIndex])
-                });
-    }
+  }).detach();
 }
+void ProcessingWriteClassState::OnExit(IntroScene &scene) {}
+void ProcessingWriteClassState::Update(IntroScene &scene) {
+  auto now = std::chrono::steady_clock::now();
+  double elapsedTime =
+      std::chrono::duration<double>(now - lastUpdateTime).count();
+  if (elapsedTime >= 0.1) {
+    lastUpdateTime = now;
+    this->spinnerIndex =
+        (this->spinnerIndex + 1) % scene.introContext.spinner.size();
+    scene.context.eventBus.Publish(TTOT::Core::Events::ScreenRefreshEvent{});
+  }
+  if (scene.introContext.geminiFuture.valid() &&
+      scene.introContext.geminiFuture.wait_for(std::chrono::seconds(0)) ==
+          std::future_status::ready) {
+    std::string result = scene.introContext.geminiFuture.get();
+    try {
+      auto parsedJson = nlohmann::json::parse(result);
+      auto classDto = parsedJson.get<TTOT::Datas::ClassDTO>();
+      scene.introContext.classInfo =
+          std::make_unique<TTOT::Class::ClassBase>(classDto);
+      scene.introContext.customClass = scene.introContext.classInfo->GetName();
+      scene.introContext.customClassDesc =
+          scene.introContext.classInfo->GetDesc();
+    } catch (const std::exception &e) {
+      scene.introContext.customClass = "⚠️ 클래스 데이터 파싱 실패";
+      scene.introContext.customClassDesc =
+          "원본 응답:\n" + result + "\n\n오류 내용:\n" + e.what();
+    }
+    scene.ChangeState(IntroStep::ConfirmClass);
+    scene.context.eventBus.Publish(TTOT::Core::Events::ScreenRefreshEvent{});
+  }
+}
+void ProcessingWriteClassState::HandleInput(IntroScene &scene,
+                                            const Event &event) {}
+Element ProcessingWriteClassState::Render(IntroScene &scene) {
+  return hbox({text("⚙ 설정에 맞는 사용자 정의 클래스를 생성 중입니다..."),
+               text(scene.introContext.spinner[this->spinnerIndex])});
+}
+} // namespace TTOT::Core::Scenes::IntroSceneState
